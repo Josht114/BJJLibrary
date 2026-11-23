@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BJJ Library</title>
+<style>
+:root {
+  --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e4e2dd;
+  --accent: #2f5bd3; --accent-ink: #ffffff; --chip: #eeece7; --gi: #8a5a00; --gi-bg: #fbefd6;
+  --nogi: #1d6b46; --nogi-bg: #dcf1e5; --dup: #8b8b8b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --panel: #1d1d20; --ink: #ececee; --muted: #9a9aa2; --line: #2e2e33;
+    --accent: #7b9cff; --accent-ink: #0d0d10; --chip: #2a2a2f; --gi: #f2c46b; --gi-bg: #3a2d12;
+    --nogi: #7fd8a6; --nogi-bg: #15342a; --dup: #77777f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --panel: #1d1d20; --ink: #ececee; --muted: #9a9aa2; --line: #2e2e33;
+  --accent: #7b9cff; --accent-ink: #0d0d10; --chip: #2a2a2f; --gi: #f2c46b; --gi-bg: #3a2d12;
+  --nogi: #7fd8a6; --nogi-bg: #15342a; --dup: #77777f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.app { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+aside { border-right: 1px solid var(--line); background: var(--panel); padding: 20px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+aside h1 { font-size: 19px; margin: 0 6px 4px; }
+aside .sub { color: var(--muted); font-size: 13px; margin: 0 6px 16px; }
+.group { margin-bottom: 14px; }
+.group h2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 6px 4px; }
+.pos { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 6px 8px; border: 0; background: none; color: inherit; font: inherit; text-align: left; border-radius: 7px; cursor: pointer; }
+.pos:hover { background: var(--chip); }
+.pos.active { background: var(--accent); color: var(--accent-ink); }
+.pos .n { font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+main { padding: 22px 28px 60px; min-width: 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 6px; }
+.toolbar input[type=search] { flex: 1 1 260px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font: inherit; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--panel); color: var(--ink); padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button.on { background: var(--accent); color: var(--accent-ink); }
+label.tog { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.heading { display: flex; align-items: baseline; gap: 12px; margin: 18px 0 14px; }
+.heading h2 { margin: 0; font-size: 24px; }
+.heading span { color: var(--muted); font-size: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; display: grid; grid-template-columns: 84px 1fr; gap: 16px; }
+.card.nocover { grid-template-columns: 1fr; }
+.cover { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; background: var(--chip); }
+.card h3 { margin: 0; font-size: 17px; }
+.meta { color: var(--muted); font-size: 13px; margin: 2px 0 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.badge { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; }
+.badge.gi { background: var(--gi-bg); color: var(--gi); }
+.badge.nogi { background: var(--nogi-bg); color: var(--nogi); }
+.badge.both { background: var(--chip); color: var(--ink); }
+.badge.dup { background: var(--chip); color: var(--dup); }
+.summary { margin: 0 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip { font-size: 12px; background: var(--chip); color: var(--ink); border: 0; border-radius: 99px; padding: 2px 10px; cursor: pointer; font-family: inherit; }
+.chip:hover { outline: 1px solid var(--accent); }
+details summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+.files { margin: 8px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.files li { display: flex; gap: 10px; align-items: center; padding: 6px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.files li a { color: var(--ink); text-decoration: none; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.files li a:hover { color: var(--accent); }
+.files li .sz { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.files li .dur { color: var(--ink); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+.files li button { border: 1px solid var(--line); background: none; color: var(--muted); border-radius: 6px; font-size: 11px; padding: 2px 6px; cursor: pointer; }
+.files li button.vlc { flex: none; border: 0; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 600; background: #f08c00; color: #fff; border-radius: 6px; padding: 2px 8px; }
+.files li button.vlc:hover { background: #d97b00; color: #fff; }
+.path { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; margin-top: 6px; }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+.menu-btn { display: none; }
+@media (max-width: 820px) {
+  .app { grid-template-columns: 1fr; }
+  aside { position: static; height: auto; display: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  aside.open { display: block; }
+  main { padding: 16px; }
+  .menu-btn { display: inline-block; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px; font: inherit; }
+  .card { grid-template-columns: 1fr; }
+  .cover { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside id="side">
+    <h1>BJJ Library</h1>
+    <p class="sub" id="stats"></p>
+    <p class="sub"><a href="my-game.html" style="color:var(--accent)">My game study guide →</a><br>
+      <a href="report.html" style="color:var(--accent)">Build a recommendation report →</a><br>
+      <a href="wiki.html" style="color:var(--accent)">Wiki: what's in each instructional →</a></p>
+    <div id="nav"></div>
+  </aside>
+  <main>
+    <div class="toolbar">
+      <button class="menu-btn" id="menuBtn">Positions</button>
+      <input type="search" id="q" placeholder="Search titles, instructors, summaries, file names…">
+      <div class="seg" id="giSeg">
+        <button data-v="all" class="on">All</button><button data-v="gi">Gi</button><button data-v="nogi">No-Gi</button>
+      </div>
+      <label class="tog"><input type="checkbox" id="showDup"> Show duplicate copies</label>
+    </div>
+    <div class="heading"><h2 id="title"></h2><span id="count"></span></div>
+    <div id="list"></div>
+  </main>
+</div>
+<script src="data.js"></script>
+<script src="open-vlc.js"></script>
+<script>
+const LIB = window.LIBRARY;
+const GROUPS = [
+  ['Library', ['all']],
+  ['Standing', ['standing']],
+  ['Guard (Bottom)', ['closed-guard', 'half-guard', 'butterfly', 'open-guard', 'rubber-guard', 'guard-retention']],
+  ['Top', ['passing', 'half-guard-passing', 'mount', 'side-control', 'back', 'turtle-fhl']],
+  ['Submissions', ['chokes', 'guillotine', 'triangle', 'armlocks', 'kimura', 'leglocks']],
+  ['Escapes & Defence', ['pin-escapes', 'back-escapes', 'sub-escapes', 'leglock-defense']],
+  ['General', ['fundamentals', 'sc-mindset', 'other', 'uncategorised']],
+];
+const NAMES = Object.fromEntries(LIB.positions);
+NAMES.all = 'All Instructionals';
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('bjjlib.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('bjjlib.' + k, JSON.stringify(v)); } catch {} },
+};
+const state = { pos: store.get('pos', 'all'), q: '', gi: store.get('gi', 'all'), dup: store.get('dup', false) };
+if (!NAMES[state.pos]) state.pos = 'all';
+
+const fileUrl = rel => '../' + rel.split('/').map(encodeURIComponent).join('/');
+const fmtDur = s => {
+  if (!s) return '';
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = Math.round(s % 60);
+  return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(sec).padStart(2, '0')}`;
+};
+const fmtTotal = s => { const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h ? `${h}h ${m}m` : `${m} min`; };
+const fmtSize = b =>b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : (b / 1e6).toFixed(0) + ' MB';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const baseName = f => f.split('/').pop();
+const absPath = rel => {
+  const here = decodeURIComponent(location.pathname).replace(/^\/([A-Za-z]:)/, '$1');
+  const root = here.split('/').slice(0, -2).join('\\');
+  return root + '\\' + rel.replace(/\//g, '\\');
+};
+
+function visible(c) {
+  if (!state.dup && c.dupOf) return false;
+  if (state.gi !== 'all' && c.g !== state.gi && c.g !== 'both') return false;
+  return true;
+}
+function matchesQuery(c, q) {
+  if (!q) return true;
+  const hay = (c.t + ' ' + c.i + ' ' + c.s + ' ' + c.path + ' ' + c.videos.map(v => baseName(v.f)).join(' ')).toLowerCase();
+  return q.split(/\s+/).every(w => hay.includes(w));
+}
+
+function renderNav() {
+  const counts = {};
+  const pool = LIB.courses.filter(visible);
+  counts.all = pool.length;
+  for (const c of pool) for (const p of c.p) counts[p] = (counts[p] || 0) + 1;
+  document.getElementById('nav').innerHTML = GROUPS.map(([g, ids]) => {
+    const items = ids.filter(id => NAMES[id] && (id === 'all' || counts[id]));
+    if (!items.length) return '';
+    return `<div class="group"><h2>${g}</h2>${items.map(id =>
+      `<button class="pos${id === state.pos ? ' active' : ''}" data-pos="${id}"><span>${esc(NAMES[id])}</span><span class="n">${counts[id] || 0}</span></button>`
+    ).join('')}</div>`;
+  }).join('');
+  const vids = LIB.courses.filter(c => !c.dupOf).reduce((n, c) => n + c.videos.length, 0);
+  const hours = Math.round(LIB.courses.filter(c => !c.dupOf).reduce((n, c) => n + c.videos.reduce((m, v) => m + (v.d || 0), 0), 0) / 3600);
+  document.getElementById('stats').textContent = `${LIB.courses.filter(c => !c.dupOf).length} instructionals · ${vids.toLocaleString()} videos${hours ? ` · ${hours.toLocaleString()} hours` : ''}`;
+}
+
+function card(c) {
+  const gi = c.g ? `<span class="badge ${c.g}">${c.g === 'nogi' ? 'No-Gi' : c.g === 'gi' ? 'Gi' : 'Gi & No-Gi'}</span>` : '';
+  const dup = c.dupOf ? `<span class="badge dup">${esc(c.note || 'duplicate')}</span>` : '';
+  const size = c.videos.reduce((n, v) => n + v.b, 0);
+  const secs = c.videos.reduce((n, v) => n + (v.d || 0), 0);
+  const runtime = secs ? ' · ' + fmtTotal(secs) + (c.videos.some(v => !v.d) ? '+' : '') : '';
+  const chips = c.p.map(p => `<button class="chip" data-pos="${p}">${esc(NAMES[p] || p)}</button>`).join('');
+  const files = c.videos.map(v => `<li><a href="${fileUrl(v.f)}" target="_blank" title="Open video">${esc(baseName(v.f))}</a>
+      <span class="dur">${fmtDur(v.d)}</span><span class="sz">${fmtSize(v.b)}</span><button class="vlc" data-open="${esc(v.f)}" title="Open from disk in VLC (no download)">VLC</button><button data-copy="${esc(v.f)}" title="Copy full path (paste into VLC or Explorer)">Copy path</button></li>`).join('');
+  const docs = c.docs.map(d => `<li><a href="${fileUrl(d)}" target="_blank">📄 ${esc(baseName(d))}</a></li>`).join('');
+  const cover = c.cover ? `<img class="cover" loading="lazy" src="${fileUrl(c.cover)}" alt="">` : '';
+  return `<article class="card${c.cover ? '' : ' nocover'}">${cover}<div>
+    <h3>${esc(c.t)}</h3>
+    <div class="meta">${c.i ? `<span>${esc(c.i)}</span>` : ''}${gi}${dup}<span>${c.videos.length} video${c.videos.length === 1 ? '' : 's'}${runtime}${size ? ' · ' + fmtSize(size) : ''}</span></div>
+    <p class="summary">${esc(c.s)} <a href="wiki.html#${encodeURIComponent(c.dupOf || c.path)}" style="color:var(--accent);font-size:13px;white-space:nowrap">Full write-up in the wiki →</a></p>
+    <div class="chips">${chips}</div>
+    <details><summary>Show videos${c.docs.length ? ' & files' : ''}</summary>
+      <ul class="files">${files}${docs}</ul>
+      <div class="path">📁 ${esc(c.path)} <button class="chip" data-copy="${esc(c.path)}">Copy folder path</button></div>
+    </details>
+  </div></article>`;
+}
+
+function renderList() {
+  const q = state.q.trim().toLowerCase();
+  let list = LIB.courses.filter(c => visible(c) && (state.pos === 'all' || c.p.includes(state.pos)) && matchesQuery(c, q));
+  // Courses whose FIRST position is the selected one come first, then by instructor/title
+  list.sort((a, b) => (b.p[0] === state.pos) - (a.p[0] === state.pos) || a.i.localeCompare(b.i) || a.t.localeCompare(b.t));
+  document.getElementById('title').textContent = NAMES[state.pos];
+  document.getElementById('count').textContent = `${list.length} instructional${list.length === 1 ? '' : 's'}`;
+  document.getElementById('list').innerHTML = list.length ? list.map(card).join('') : '<p class="empty">Nothing matches.</p>';
+}
+
+function render() { renderNav(); renderList(); }
+
+document.addEventListener('click', e => {
+  const p = e.target.closest('[data-pos]');
+  if (p) {
+    state.pos = p.dataset.pos; store.set('pos', state.pos);
+    document.getElementById('side').classList.remove('open');
+    render(); window.scrollTo(0, 0); return;
+  }
+  const cp = e.target.closest('[data-copy]');
+  if (cp) {
+    const text = absPath(cp.dataset.copy);
+    navigator.clipboard.writeText(text).then(() => { const o = cp.textContent; cp.textContent = 'Copied'; setTimeout(() => cp.textContent = o, 1200); });
+  }
+});
+document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; renderList(); });
+document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('side').classList.toggle('open'));
+const dupBox = document.getElementById('showDup');
+dupBox.checked = state.dup;
+dupBox.addEventListener('change', () => { state.dup = dupBox.checked; store.set('dup', state.dup); render(); });
+document.querySelectorAll('#giSeg button').forEach(b => {
+  b.classList.toggle('on', b.dataset.v === state.gi);
+  b.addEventListener('click', () => {
+    state.gi = b.dataset.v; store.set('gi', state.gi);
+    document.querySelectorAll('#giSeg button').forEach(x => x.classList.toggle('on', x === b));
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>

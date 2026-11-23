@@ -1,0 +1,15 @@
+2026-11-22T17:44:09  started on http://127.0.0.1:8765/
+2026-11-22T17:44:30  refused request: path=/api/open origin='https://evil.example'
+2026-11-22T17:44:30  refused request: path=/api/open origin='http://127.0.0.1:8765'
+2026-11-22T17:44:30  refused '../../Windows/notepad.exe': outside the library folder
+2026-11-22T17:44:30  refused 'Power Building Bundle by Jeff Nippard/Powerbuilding_2.0_Program.pdf': not a video file
+2026-11-22T17:44:30  refused 'Leg Drag/nope.mp4': file not found
+2026-11-22T17:44:30  opened (vlc): F:\instructionals\VIDEOS\Leg Drag\01 Overview.mp4
+2026-11-22T17:44:43  started on http://127.0.0.1:8765/
+2026-11-22T17:45:11  started on http://127.0.0.1:8765/
+2026-11-22T17:45:34  opened (vlc): F:\instructionals\VIDEOS\10th Planet Collection\10th Planet Freaks\Standing Attacks\Standing Attacks - High Elbow Guillotine.mp4
+2026-11-22T17:47:37  started on http://127.0.0.1:8765/
+2026-11-22T17:47:55  opened (vlc): F:\instructionals\VIDEOS\POWER PASSING 2.0 - FFION DAVIES\Chapter 1 - Approaching the guard, Bullfighter + Variations\2. Basic Bullfighter Pass.mp4
+2026-11-22T17:48:53  opened (vlc): F:\instructionals\VIDEOS\Loopchoke by Meregali\10 Over Under Pass.mp4
+2026-11-22T22:44:37  idle for 4h, stopping
+2026-11-23T12:42:22  started on http://127.0.0.1:8765/

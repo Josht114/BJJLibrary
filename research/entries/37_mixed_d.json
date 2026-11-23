@@ -1,0 +1,38 @@
+{
+"John Danaher Master The Move： Arm Drags": {
+  "bjjf": "master-the-move-arm-drags-by-john-danaher",
+  "overview": "John Danaher's arm drag course, eight volumes. Volume 1 covers three considerations for effective arm dragging. Volume 2 covers arm drags from seated guard (the rising arm drag). Volume 3 covers arm drags from supine butterfly and reverse De La Riva. Volume 4 covers half butterfly guard (dealing with high hands). Volume 5 covers defensive arm drags from the 'double pits' position. Volume 6 covers standing arm drags (foundational methods, the sliding arm drag). Volume 7 covers open-stance (kenka yotsu) arm drags such as the inside wrist drag. Volume 8 covers knee-drop arm drags (single and double).",
+  "for": "No-gi grapplers who want the arm drag from guard and standing.",
+  "key": ["Seated and rising arm drags", "Arm drags from butterfly and RDLR", "Defensive arm drags", "Standing and knee-drop arm drags"]
+},
+"Josh Saunders - Upper Lower Chains Links that Solve Problems Faster": {
+  "bjjf": "upper-lower-chains-links-that-solve-problems-faster-by-josh-saunders",
+  "overview": "ADCC Trials winner Josh Saunders on chaining upper and lower body attacks, four volumes. Volume 1 covers standing attacks (feinting for a leg to improve upper body attacks, and vice versa). Volume 2 covers attacks from top (dorsal kimura to the legs, quarter guard to inside sankaku). Volume 3 covers attacks from bottom (double kouchi to leg entanglements, half butterfly leg attacks to open up chokes). Volume 4 covers escapes from half guard (knee levers to free underhooks, butterfly hooks to escape the crossface).",
+  "for": "Intermediate no-gi grapplers who want attacks that set each other up.",
+  "key": ["Feinting between upper and lower body", "Dorsal kimura to leg attacks", "Half butterfly attacks", "Half guard escapes"]
+},
+"Keenan Cornelius - The Worm Guard": {
+  "overview": "Keenan Cornelius' original worm guard DVD set (four discs, about 3.5 hours). The worm guard is a gi guard that wraps the opponent's lapel around their leg to create a strong hook, usually from De La Riva or reverse De La Riva. It covers getting the lapel wrapped, controlling the opponent's posture and leg, and the sweeps and back takes that follow, plus the reverse worm guard and how to deal with passing attempts. The files are labelled by disc, including a bonus disc.",
+  "for": "Gi open guard players who like lapel guards.",
+  "key": ["Worm guard set-up", "Reverse worm guard", "Sweeps and back takes", "Dealing with passes"],
+  "sources": ["Based on the title and Keenan Cornelius' published worm guard material; no matching chapter listing was found."]
+},
+"Lachlan Giles/Lachie Giles - Half guard seminar_1.mp4": {
+  "overview": "A single seminar recording (about 1h 50m) of Lachlan Giles teaching half guard. It likely follows the structure of his Half Guard Anthology: entries and recovering to half guard, the knee shield and getting the underhook, kneeling underhook attacks, sit-up and shin-to-shin guard, reverse De La Riva and the back spin, and the Z guard and kimura.",
+  "for": "A shorter, live version of Lachlan's half guard system.",
+  "key": ["Knee shield and underhook", "Recovering to half guard", "Sweeps and back takes"],
+  "sources": ["Based on the title; topics inferred from Lachlan's Half Guard Anthology."]
+},
+"Lachlan Giles/Lachlan Giles - 5050 Anthology": {
+  "bjjf": "leg-lock-anthology-50-50-by-lachlan-giles",
+  "overview": "Lachlan Giles' leg lock anthology built around 50/50 and outside sankaku, the system he used to submit three heavier opponents at ADCC 2019 (about 12 hours in 8 files). It starts with general leg lock concepts (keeping and reclaiming the knee line), heel hook finishing mechanics, defence and beating defences, and the strengths and weaknesses of each leg lock position. The core covers 50/50 and outside sankaku (staying safe, non-heel-hook attacks, digging the heel, distal control, against a standing opponent, sweeps and back takes, top 50/50 and disengaging) and countering the traditional saddle and outside ashi game. It finishes with entries from butterfly, shin-to-shin, single leg X, K guard, De La Riva and RDLR, inversions and from top, plus drills and narrated rolling from ADCC Trials. The publisher lists about 29 sections, so they aren't matched file by file.",
+  "for": "Intermediate-advanced no-gi grapplers who want a full leg lock system.",
+  "key": ["Knee line and finishing mechanics", "50/50 and outside sankaku", "Countering saddle and outside ashi", "Entries from many guards", "Narrated ADCC Trials rolling"]
+},
+"Lachlan Giles/Lachlan Giles - Fundamentals of Brazilian Jiu Jitsu Escapes": {
+  "bjjf": "fundamentals-of-brazilian-jiu-jitsu-escapes-gi-no-gi-by-lachlan-giles",
+  "overview": "Lachlan Giles' escapes for gi and no-gi (7 files). It covers core concepts and fundamental movements, then escapes from back control (including single-hook situations), side control variants, turtle, the front headlock (defending chokes), switch base, and mount (including high mount and S-mount). He also spars from the bad positions to show the escapes live. The publisher's sections don't line up exactly with your files.",
+  "for": "Gi and no-gi players of any level.",
+  "key": ["Fundamental escape movements", "Back, side control and mount escapes", "Turtle and front headlock escapes", "High mount and S-mount"]
+}
+}

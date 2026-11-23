@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BJJ Library Wiki</title>
+<style>
+:root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dd; --accent:#2f5bd3; --accent-ink:#fff; --chip:#eeece7;
+  --gi:#8a5a00; --gi-bg:#fbefd6; --nogi:#1d6b46; --nogi-bg:#dcf1e5; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10; --chip:#2a2a2f;
+  --gi:#f2c46b; --gi-bg:#3a2d12; --nogi:#7fd8a6; --nogi-bg:#15342a; } }
+:root[data-theme="dark"] { --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10; --chip:#2a2a2f;
+  --gi:#f2c46b; --gi-bg:#3a2d12; --nogi:#7fd8a6; --nogi-bg:#15342a; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+.app { display:grid; grid-template-columns:330px 1fr; min-height:100vh; }
+aside { background:var(--panel); border-right:1px solid var(--line); position:sticky; top:0; height:100vh; display:flex; flex-direction:column; }
+.side-head { padding:16px 14px 10px; border-bottom:1px solid var(--line); }
+.side-head h1 { font-size:19px; margin:0; } .side-head .sub { font-size:13px; color:var(--muted); margin:2px 0 10px; }
+.side-head .sub a { color:var(--accent); }
+input[type=search], select { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); font:inherit; font-size:14px; margin-top:6px; }
+#list { overflow-y:auto; flex:1; padding:6px; }
+.item { display:block; width:100%; text-align:left; border:0; background:none; color:inherit; font:inherit; padding:7px 10px; border-radius:7px; cursor:pointer; }
+.item:hover { background:var(--bg); } .item.on { background:var(--accent); color:var(--accent-ink); }
+.item b { display:block; font-size:14px; font-weight:600; line-height:1.3; } .item span { font-size:12px; opacity:.75; }
+.count { font-size:12px; color:var(--muted); padding:4px 10px; }
+main { padding:28px 34px 80px; min-width:0; }
+article { max-width:860px; margin:0 auto; }
+.kicker { font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+h2.title { font-size:30px; line-height:1.2; margin:2px 0 8px; }
+.meta { display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; color:var(--muted); font-size:14px; margin-bottom:12px; }
+.badge { font-size:11px; font-weight:600; padding:1px 8px; border-radius:99px; background:var(--chip); color:var(--ink); }
+.badge.gi { background:var(--gi-bg); color:var(--gi); } .badge.nogi { background:var(--nogi-bg); color:var(--nogi); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+.chip { font-size:12px; border-radius:99px; padding:2px 10px; background:var(--chip); }
+section { margin:22px 0; }
+section h3 { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.overview p { margin:0 0 10px; font-size:16px; }
+.key { margin:0; padding-left:20px; } .key li { margin:4px 0; }
+.files { border:1px solid var(--line); border-radius:10px; background:var(--panel); overflow:hidden; }
+.folder { padding:8px 14px; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); background:var(--bg); border-top:1px solid var(--line); }
+.file { padding:10px 14px; border-top:1px solid var(--line); }
+.files > .file:first-child, .files > .folder:first-child { border-top:0; }
+.file .row { display:flex; gap:10px; align-items:baseline; }
+.file .n { flex:0 0 26px; color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums; }
+.file .name { flex:1; font-weight:600; overflow-wrap:anywhere; }
+.file .dur { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.file .note { margin:2px 0 0 36px; font-size:14px; }
+.file ul { margin:4px 0 0 36px; padding-left:16px; font-size:14px; color:var(--ink); }
+.file ul li { margin:1px 0; }
+.vlc { flex:none; font-size:11px; font-weight:600; border:0; cursor:pointer; font-family:inherit; background:#f08c00; color:#fff; border-radius:5px; padding:2px 8px; }
+.vlc:hover { background:#d97b00; }
+.contents { border:1px solid var(--line); border-radius:10px; background:var(--panel); padding:12px 16px; }
+.contents h4 { margin:10px 0 4px; font-size:15px; } .contents h4:first-child { margin-top:0; }
+.contents ul { margin:0; padding-left:20px; font-size:14px; columns:2 260px; }
+.muted { color:var(--muted); font-size:14px; }
+.src a { color:var(--accent); overflow-wrap:anywhere; }
+.loc code { font:12px/1.4 ui-monospace,Consolas,monospace; color:var(--muted); background:var(--panel); border:1px solid var(--line); border-radius:5px; padding:2px 6px; overflow-wrap:anywhere; user-select:all; }
+.pending { background:var(--gi-bg); color:var(--gi); padding:8px 12px; border-radius:8px; font-size:14px; }
+@media (max-width:860px) {
+  .app { grid-template-columns:1fr; }
+  aside { position:static; height:auto; max-height:50vh; border-right:0; border-bottom:1px solid var(--line); }
+  main { padding:18px 16px 60px; }
+  .file ul, .file .note { margin-left:10px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="side-head">
+      <h1>BJJ Library Wiki</h1>
+      <div class="sub">What's in every instructional. <a href="index.html">Library</a> · <a href="my-game.html">Study guide</a> · <a href="report.html">Reports</a></div>
+      <input type="search" id="q" placeholder="Search titles, instructors, topics, chapters…">
+      <select id="pos"><option value="">All positions</option></select>
+    </div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </aside>
+  <main><article id="page"></article></main>
+</div>
+<script src="wiki.js"></script>
+<script>
+const W = window.WIKI;
+const POS = Object.fromEntries(W.positions);
+const entries = W.entries.filter(e => !e.dupOf).sort((a, b) => a.t.localeCompare(b.t));
+const dupsOf = {};
+W.entries.filter(e => e.dupOf).forEach(d => (dupsOf[d.dupOf] ||= []).push(d));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = s => { if (!s) return ''; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = Math.round(s % 60);
+  return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(x).padStart(2, '0')}`; };
+const hay = e => (e.t + ' ' + e.i + ' ' + e.overview + ' ' + (e.key || []).join(' ') + ' ' +
+  e.files.map(f => f.label + ' ' + (f.note || '') + ' ' + f.covers.join(' ')).join(' ') + ' ' +
+  e.contents.map(c => c.title + ' ' + c.items.join(' ')).join(' ')).toLowerCase();
+entries.forEach(e => e._h = hay(e));
+
+const sel = document.getElementById('pos');
+W.positions.forEach(([id, name]) => { if (entries.some(e => e.p.includes(id))) sel.insertAdjacentHTML('beforeend', `<option value="${id}">${esc(name)}</option>`); });
+
+let current = decodeURIComponent(location.hash.slice(1)) || null;
+
+function renderList() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const p = sel.value;
+  const list = entries.filter(e => (!p || e.p.includes(p)) && (!q || q.split(/\s+/).every(w => e._h.includes(w))));
+  document.getElementById('count').textContent = `${list.length} instructional${list.length === 1 ? '' : 's'}`;
+  document.getElementById('list').innerHTML = list.map(e =>
+    `<button class="item${e.path === current ? ' on' : ''}" data-path="${esc(e.path)}"><b>${esc(e.t)}</b><span>${esc(e.i || '')}</span></button>`).join('');
+}
+
+function renderPage() {
+  const e = entries.find(x => x.path === current) || entries.find(x => x.path === (W.entries.find(d => d.path === current) || {}).dupOf);
+  const el = document.getElementById('page');
+  if (!e) {
+    const researched = entries.filter(x => x.researched).length;
+    el.innerHTML = `<div class="kicker">BJJ Library</div><h2 class="title">Wiki</h2>
+      <p class="muted">${entries.length} instructionals, ${researched} with full research write-ups. Pick one on the left, or search for a technique to find every instructional and chapter that mentions it.</p>`;
+    return;
+  }
+  const gi = { gi: 'Gi', nogi: 'No-Gi', both: 'Gi & No-Gi' }[e.g];
+  const paras = e.overview.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join('');
+  let folder = null;
+  const files = e.files.map((f, i) => {
+    let head = '';
+    if (f.folder && f.folder !== folder) head = `<div class="folder">${esc(f.folder)}</div>`;
+    folder = f.folder;
+    const showLabel = !f.covers.length && !f.note && !f.numbered && f.label !== f.file;
+    const rel = e.path.includes('.') && !e.files[1] && e.path.endsWith(f.file) ? e.path : e.path + '/' + (f.folder ? f.folder + '/' : '') + f.file;
+    return head + `<div class="file"><div class="row"><span class="n">${i + 1}</span><span class="name">${esc(showLabel ? f.label : f.file)}</span>
+      <span class="dur">${fmt(f.dur)}</span><button class="vlc" data-open="${esc(rel)}">VLC</button></div>
+      ${f.note ? `<div class="note">${esc(f.note)}</div>` : ''}
+      ${f.covers.length ? `<ul>${f.covers.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}</div>`;
+  }).join('');
+  const contents = e.contents.length ? `<section><h3>Course contents</h3><p class="muted">As listed by the publisher. Your files aren't split the same way, so this can't be matched file by file.</p>
+    <div class="contents">${e.contents.map(c => `<h4>${esc(c.title)}</h4><ul>${c.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('')}</div></section>` : '';
+  const copies = dupsOf[e.path] || [];
+  el.innerHTML = `
+    <div class="kicker">${esc(e.i || 'Instructional')}</div>
+    <h2 class="title">${esc(e.t)}</h2>
+    <div class="meta">${gi ? `<span class="badge ${e.g}">${gi}</span>` : ''}<span>${e.nvideos} video${e.nvideos === 1 ? '' : 's'}</span>
+      ${e.total ? `<span>${fmt(e.total)} total</span>` : ''}${e.researched ? '' : '<span class="badge">short summary</span>'}</div>
+    <div class="chips">${e.p.map(p => `<span class="chip">${esc(POS[p] || p)}</span>`).join('')}</div>
+    <section class="overview"><h3>Overview</h3>${paras}</section>
+    ${e.for ? `<section><h3>Who it's for</h3><p style="margin:0">${esc(e.for)}</p></section>` : ''}
+    ${e.key.length ? `<section><h3>Key topics</h3><ul class="key">${e.key.map(k => `<li>${esc(k)}</li>`).join('')}</ul></section>` : ''}
+    <section><h3>What's in each file</h3><div class="files">${files}</div>
+      ${!e.mapped && !e.contents.length && e.files.length > 1 && e.files.every(f => f.numbered && !f.note) ? '<p class="muted">These files are only numbered and no chapter list was found, so per-file detail isn\'t available.</p>' : ''}</section>
+    ${contents}
+    <section class="loc"><h3>Location</h3><code>F:\\instructionals\\VIDEOS\\${esc(e.path.replace(/\//g, '\\'))}</code>
+      ${copies.length ? `<p class="muted" style="margin:6px 0 0">Also in your library: ${copies.map(c => `<code>${esc(c.path.replace(/\//g, '\\'))}</code>`).join(' ')}</p>` : ''}</section>
+    ${e.sources.length ? `<section class="src"><h3>Sources</h3>${e.sources.map(s => /^https?:/.test(s) ? `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(s)}</a>` : esc(s)).join('<br>')}</section>` : ''}`;
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('list').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-path]'); if (!b) return;
+  current = b.dataset.path; location.hash = encodeURIComponent(current);
+});
+window.addEventListener('hashchange', () => { current = decodeURIComponent(location.hash.slice(1)) || null; renderList(); renderPage(); });
+document.getElementById('q').addEventListener('input', renderList);
+sel.addEventListener('change', renderList);
+renderList(); renderPage();
+</script>
+<script src="open-vlc.js"></script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report Builder</title>
+<style>
+:root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dd; --accent:#2f5bd3; --accent-ink:#fff;
+  --top:#2f5bd3; --bot:#b4542b; --ch:#1d6b46; --ch-bg:#dcf1e5; --ts:#5a3fb0; --ts-bg:#e9e2fb; --lk:#8a5a00; --lk-bg:#fbefd6; --co:#55555a; --co-bg:#eeece7; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10;
+  --top:#7b9cff; --bot:#f0936a; --ch:#7fd8a6; --ch-bg:#15342a; --ts:#bba8ff; --ts-bg:#2c2346; --lk:#f2c46b; --lk-bg:#3a2d12; --co:#b5b5bb; --co-bg:#2a2a2f; } }
+:root[data-theme="dark"] { --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10;
+  --top:#7b9cff; --bot:#f0936a; --ch:#7fd8a6; --ch-bg:#15342a; --ts:#bba8ff; --ts-bg:#2c2346; --lk:#f2c46b; --lk-bg:#3a2d12; --co:#b5b5bb; --co-bg:#2a2a2f; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+.app { display:grid; grid-template-columns:320px 1fr; min-height:100vh; }
+aside { background:var(--panel); border-right:1px solid var(--line); padding:18px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+aside h1 { font-size:19px; margin:0; }
+aside .sub { color:var(--muted); font-size:13px; margin:2px 0 14px; }
+aside .sub a { color:var(--accent); }
+.field { margin-bottom:16px; }
+.field > label, .field > .lbl { display:block; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); font:inherit; }
+.quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.quick button, .seg button { font:inherit; font-size:12px; padding:4px 10px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; }
+.quick button:hover { border-color:var(--accent); color:var(--accent); }
+.grp { font-size:12px; font-weight:600; color:var(--muted); margin:10px 0 4px; }
+.pos { display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px; cursor:pointer; font-size:14px; }
+.pos:hover { background:var(--bg); }
+.pos input { accent-color:var(--accent); width:16px; height:16px; }
+.pos .n { margin-left:auto; font-size:12px; color:var(--muted); }
+.seg { display:flex; flex-direction:column; gap:4px; }
+.seg button { text-align:left; font-size:13px; padding:6px 10px; }
+.seg button.on { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.tog { display:flex; align-items:center; gap:8px; font-size:14px; margin:4px 0; cursor:pointer; }
+.tog input { accent-color:var(--accent); }
+.print { width:100%; padding:10px; border:0; border-radius:8px; background:var(--accent); color:var(--accent-ink); font:inherit; font-weight:600; cursor:pointer; }
+main { padding:28px 32px 80px; min-width:0; }
+.report { max-width:900px; margin:0 auto; }
+.empty { text-align:center; color:var(--muted); padding:80px 20px; }
+.r-head { border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:18px; }
+.r-head .kicker { font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.r-head h1 { font-size:32px; margin:2px 0 6px; line-height:1.15; }
+.r-head .meta { color:var(--muted); font-size:14px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.chip { font-size:12px; padding:2px 10px; border-radius:99px; border:1px solid var(--line); background:var(--panel); }
+.chip.top { border-left:3px solid var(--top); } .chip.bottom { border-left:3px solid var(--bot); }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:18px; }
+.stat { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+.stat b { display:block; font-size:24px; line-height:1.2; } .stat span { color:var(--muted); font-size:13px; }
+.box { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:22px; }
+.box h2 { font-size:15px; margin:0 0 8px; }
+.box ol { margin:0; padding-left:20px; } .box li { margin:3px 0; }
+.muted { color:var(--muted); font-size:13px; }
+.sec { margin-top:26px; break-inside:auto; }
+.sec h2 { font-size:22px; margin:0 0 10px; padding-left:10px; border-left:4px solid var(--top); }
+.sec.bottom h2 { border-left-color:var(--bot); }
+.move { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:10px; break-inside:avoid; }
+.move h3 { margin:0 0 6px; font-size:16px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; }
+.dest { font-size:13px; font-weight:500; color:var(--accent); } .subm { font-size:12px; color:var(--muted); font-weight:500; }
+.move ol { list-style:none; margin:0; padding:0; counter-reset:p; }
+.move li { display:flex; gap:10px; padding:7px 0; border-top:1px solid var(--line); }
+.move li:first-child { border-top:0; }
+.num { flex:0 0 22px; height:22px; border-radius:50%; background:var(--bg); border:1px solid var(--line); font-size:12px; font-weight:600; display:grid; place-items:center; margin-top:1px; }
+.k { font-size:11px; font-weight:600; border-radius:99px; padding:1px 8px; white-space:nowrap; }
+.k-ch { background:var(--ch-bg); color:var(--ch); } .k-ts { background:var(--ts-bg); color:var(--ts); }
+.k-vol { background:var(--ts-bg); color:var(--ts); } .k-likely { background:var(--lk-bg); color:var(--lk); } .k-course { background:var(--co-bg); color:var(--co); }
+.ref { min-width:0; flex:1; }
+.ref .top { display:flex; flex-wrap:wrap; gap:4px 8px; align-items:baseline; }
+.ref a { color:var(--ink); font-weight:600; text-decoration:none; overflow-wrap:anywhere; } .ref a:hover { color:var(--accent); }
+.dur { font-size:12px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums; }
+.src { font-size:13px; color:var(--muted); } .src b { color:var(--ink); font-weight:500; }
+.note { font-size:13px; }
+.loc { display:flex; gap:6px; align-items:flex-start; margin-top:3px; }
+.loc code { font:12px/1.4 ui-monospace,Consolas,monospace; color:var(--muted); background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:2px 6px; overflow-wrap:anywhere; user-select:all; }
+.vlc { flex:none; font-size:11px; font-weight:600; border:0; cursor:pointer; font-family:inherit; background:#f08c00; color:#fff; border-radius:5px; padding:3px 8px; white-space:nowrap; }
+.vlc:hover { background:#d97b00; }
+.foot { margin-top:30px; padding-top:10px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+.menu-btn { display:none; }
+@media (max-width:860px) {
+  .app { grid-template-columns:1fr; }
+  aside { position:static; height:auto; border-right:0; border-bottom:1px solid var(--line); }
+  main { padding:18px 16px 60px; }
+}
+@media print {
+  :root { --bg:#fff; --panel:#fff; --ink:#000; --muted:#555; --line:#ccc; }
+  aside, .vlc { display:none !important; }
+  .app { display:block; } main { padding:0; } body { background:#fff; font-size:12px; }
+  .r-head h1 { font-size:26px; }
+  .stat, .box, .move { border-color:#ccc; }
+  a { color:#000 !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h1>Report Builder</h1>
+    <p class="sub">Pick positions and the report updates on the right. <a href="index.html">Library</a> · <a href="my-game.html">Full study guide</a></p>
+
+    <div class="field"><label for="title">Report title</label><input type="text" id="title" value="Study report"></div>
+
+    <div class="field">
+      <span class="lbl">Positions</span>
+      <div class="quick">
+        <button data-q="all">All</button><button data-q="none">None</button><button data-q="top">Top only</button><button data-q="bottom">Bottom only</button><button data-q="escapes">Escapes</button>
+      </div>
+      <div id="posList"></div>
+    </div>
+
+    <div class="field">
+      <span class="lbl">Recommendations</span>
+      <div class="seg" id="pickSeg">
+        <button data-v="best">Best pick per move</button>
+        <button data-v="specific">Specific chapters only</button>
+        <button data-v="all">Everything</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="lbl">Show</span>
+      <label class="tog"><input type="checkbox" id="optNotes" checked> Notes on why each pick</label>
+      <label class="tog"><input type="checkbox" id="optPaths" checked> File locations</label>
+      <label class="tog"><input type="checkbox" id="optCourses" checked> Key instructionals summary</label>
+    </div>
+
+    <button class="print" id="printBtn">Print / Save as PDF</button>
+  </aside>
+  <main><div class="report" id="report"></div></main>
+</div>
+<script src="game.js"></script>
+<script>
+const G = window.GAME;
+const KIND = { ch: 'Chapter', ts: 'Timestamp', vol: 'Volume', likely: 'Likely', course: 'Course' };
+const RANK = { ch: 0, ts: 1, vol: 2, likely: 3, course: 4 };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = s => { if (!s) return ''; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = Math.round(s % 60);
+  return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(x).padStart(2, '0')}`; };
+const fmtLong = s => { const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60); return h ? `${h}h ${m}m` : `${m} min`; };
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('bjjreport.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('bjjreport.' + k, JSON.stringify(v)); } catch {} },
+};
+const state = {
+  sel: new Set(store.get('sel', ['top-mount', 'top-side-control'])),
+  pick: store.get('pick', 'best'),
+  notes: store.get('notes', true), paths: store.get('paths', true), courses: store.get('courses', true),
+  title: store.get('title', 'Study report'),
+};
+const persist = () => { store.set('sel', [...state.sel]); store.set('pick', state.pick); store.set('notes', state.notes);
+  store.set('paths', state.paths); store.set('courses', state.courses); store.set('title', state.title); };
+
+// ---- builder panel
+function renderPicker() {
+  const groups = [['Top & standing', G.filter(p => p.side === 'top')], ['Bottom', G.filter(p => p.side === 'bottom')]];
+  document.getElementById('posList').innerHTML = groups.map(([g, ps]) => `<div class="grp">${g}</div>` + ps.map(p =>
+    `<label class="pos"><input type="checkbox" value="${p.id}" ${state.sel.has(p.id) ? 'checked' : ''}><span>${esc(p.pos)}</span><span class="n">${p.moves.length}</span></label>`
+  ).join('')).join('');
+  document.querySelectorAll('#pickSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === state.pick));
+  document.getElementById('optNotes').checked = state.notes;
+  document.getElementById('optPaths').checked = state.paths;
+  document.getElementById('optCourses').checked = state.courses;
+  document.getElementById('title').value = state.title;
+}
+
+function picksFor(move) {
+  const refs = move.refs.map((r, i) => ({ ...r, i }));
+  if (state.pick === 'all') return refs;
+  if (state.pick === 'specific') return refs.filter(r => r.kind !== 'course');
+  const best = refs.slice().sort((a, b) => RANK[a.kind] - RANK[b.kind] || a.i - b.i)[0];
+  return best ? [best] : [];
+}
+
+// ---- report
+function renderReport() {
+  const chosen = G.filter(p => state.sel.has(p.id));
+  const el = document.getElementById('report');
+  document.title = state.title || 'Study report';
+  if (!chosen.length) { el.innerHTML = '<div class="empty"><h2>No positions selected</h2><p>Tick one or more positions on the left to build a report.</p></div>'; return; }
+
+  let moves = 0, picks = 0, noPick = 0;
+  const videos = new Map(), courseMoves = new Map();
+  const secs = chosen.map(p => {
+    const mv = p.moves.map(m => {
+      moves++;
+      const ps = picksFor(m);
+      picks += ps.length;
+      if (!ps.length) noPick++;
+      ps.forEach(r => {
+        if (r.video && r.d) videos.set(r.open, r.d);
+        const c = courseMoves.get(r.ci) || { t: r.course, i: r.inst, moves: new Set() };
+        c.moves.add(p.id + '|' + m.name); courseMoves.set(r.ci, c);
+      });
+      const dest = m.dest ? `<span class="dest">→ ${esc(m.dest)}</span>` : '<span class="subm">Submission</span>';
+      const list = ps.length ? `<ol>${ps.map((r, n) => pickHtml(r, n + 1)).join('')}</ol>`
+        : '<p class="muted" style="margin:0">No specific chapter in your library. Switch to "Everything" to see course-level picks.</p>';
+      return `<div class="move"><h3>${esc(m.name)} ${dest}</h3>${list}</div>`;
+    }).join('');
+    return `<section class="sec ${p.side}"><h2>${esc(p.pos)}</h2>${mv}</section>`;
+  }).join('');
+
+  const watch = [...videos.values()].reduce((a, b) => a + b, 0);
+  const top = [...courseMoves.values()].sort((a, b) => b.moves.size - a.moves.size).slice(0, 6);
+  const date = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+  const modeLabel = { best: 'Best pick per move', specific: 'Specific chapters only', all: 'All recommendations' }[state.pick];
+
+  el.innerHTML = `
+    <header class="r-head">
+      <div class="kicker">BJJ Library · Recommendation report</div>
+      <h1>${esc(state.title || 'Study report')}</h1>
+      <div class="meta">${date} · ${modeLabel}</div>
+      <div class="chips">${chosen.map(p => `<span class="chip ${p.side}">${esc(p.pos)}</span>`).join('')}</div>
+    </header>
+    <div class="stats">
+      <div class="stat"><b>${chosen.length}</b><span>positions</span></div>
+      <div class="stat"><b>${moves}</b><span>moves</span></div>
+      <div class="stat"><b>${picks}</b><span>recommendations</span></div>
+      <div class="stat"><b>${watch ? fmtLong(watch) : '–'}</b><span>watch time for the specific chapters</span></div>
+    </div>
+    ${state.courses && top.length ? `<div class="box"><h2>Key instructionals for this report</h2><ol>${top.map(c =>
+      `<li><b>${esc(c.t)}</b> <span class="muted">${esc(c.i)} · ${c.moves.size} move${c.moves.size === 1 ? '' : 's'}</span></li>`).join('')}</ol>
+      ${noPick ? `<p class="muted" style="margin:8px 0 0">${noPick} move${noPick === 1 ? ' has' : 's have'} no specific chapter in your library.</p>` : ''}</div>` : ''}
+    ${secs}
+    <div class="foot">Generated from your BJJ Library on ${date}. Kinds: Chapter = chapter title names the move · Timestamp = from the course contents · Volume = the publisher's chapter list names it in that volume · Likely = title strongly suggests it · Course = whole course, chapters not labelled.</div>`;
+}
+
+function pickHtml(r, n) {
+  const what = r.video ? esc(r.video) : `Whole course (${r.nvideos} videos, start at video 1)`;
+  const dur = r.video ? fmt(r.d) : (r.total ? 'whole course ' + fmt(r.total) : '');
+  return `<li><span class="num">${n}</span><div class="ref">
+    <div class="top"><span class="k k-${r.kind}">${KIND[r.kind]}</span><a href="${r.href}" target="_blank">${what}</a>${dur ? `<span class="dur">${dur}</span>` : ''}</div>
+    <div class="src"><b>${esc(r.course)}</b>${r.inst ? ' · ' + esc(r.inst) : ''}${r.gi ? ' · ' + esc(r.gi) : ''}</div>
+    ${state.notes ? `<div class="note">${esc(r.note)}</div>` : ''}
+    ${state.paths ? `<div class="loc"><code>${esc(r.loc)}</code><button class="vlc" data-open="${esc(r.open)}">Open in VLC</button></div>`
+      : `<div class="loc"><button class="vlc" data-open="${esc(r.open)}">Open in VLC</button></div>`}
+  </div></li>`;
+}
+
+function update() { persist(); renderReport(); }
+
+// ---- events
+document.getElementById('posList').addEventListener('change', e => {
+  if (e.target.type !== 'checkbox') return;
+  e.target.checked ? state.sel.add(e.target.value) : state.sel.delete(e.target.value);
+  update();
+});
+document.querySelector('.quick').addEventListener('click', e => {
+  const q = e.target.dataset.q; if (!q) return;
+  state.sel = new Set(G.filter(p => q === 'all' || (q === 'top' && p.side === 'top') || (q === 'bottom' && p.side === 'bottom')
+    || (q === 'escapes' && p.moves.some(m => /escape|recover|re-shot|sit to|trap and roll/i.test(m.name)))).map(p => p.id));
+  renderPicker(); update();
+});
+document.getElementById('pickSeg').addEventListener('click', e => {
+  const v = e.target.dataset.v; if (!v) return;
+  state.pick = v; renderPicker(); update();
+});
+for (const [id, key] of [['optNotes', 'notes'], ['optPaths', 'paths'], ['optCourses', 'courses']])
+  document.getElementById(id).addEventListener('change', e => { state[key] = e.target.checked; update(); });
+document.getElementById('title').addEventListener('input', e => { state.title = e.target.value; update(); });
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+renderPicker();
+renderReport();
+</script>
+<script src="open-vlc.js"></script>
+</body>
+</html>

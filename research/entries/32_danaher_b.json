@@ -1,0 +1,18 @@
+{
+"John Danaher - collection 480p/Feet To Floor": {
+  "bjjf_folders": {
+    "Volume 1": "feet-to-floor-volume-one-fundamental-standing-skills-by-john-danaher",
+    "Volume 2": "feet-to-floor-volume-2-by-john-danaher",
+    "Volume 3": "feet-to-floor-volume-3-by-john-danaher"
+  },
+  "overview": "John Danaher's three-part standing course for jiu-jitsu (24 videos, about 39 hours), stored here as three subfolders. Volume 1 (Fundamental Standing Skills) covers stance and movement, grip fighting, front takedowns, the ankle pick, snap downs, takedowns for self-defence and a special study of the high single leg. Volume 2 covers judo for jiu-jitsu, mostly in the gi: a simplified theory of gripping, sasae tsuri komi ashi, the big leg throws (ouchi gari and others), sacrifice throws (yoko and front tomoe nage) and a long section on sumi gaeshi, which he argues is the best throw for jiu-jitsu. Volume 3 covers guard pulling done properly (pulling to a sweep, to an advantage, to a position, to a submission), takedown counters, step-around counters and mat returns.",
+  "for": "Jiu-jitsu players who want a complete, safe standing game, gi or no-gi.",
+  "key": ["Grip fighting and stance", "Ankle pick, snap downs and high single", "Judo throws for jiu-jitsu: tomoe nage, sumi gaeshi", "Guard pulling with a purpose", "Takedown counters and mat returns"]
+},
+"John Danaher - collection 480p/Go Further Faster/2 - Guard Retention": {
+  "bjjf": "guard-retention-bjj-fundamentals-go-further-faster-by-john-danaher",
+  "overview": "John Danaher's gi guard retention fundamentals, eight volumes. Volume 1 is the overview. Volume 2 covers the big-picture theory and the two most basic requirements. Volume 3 covers the first skill, movement, especially from the seated position. Volume 4 covers the second skill, framing. Volume 5 covers connection, and the five things an opponent needs to pass your guard. Volumes 6 to 8 apply the theory to specific passes: the double under, the toreando and the leg drag.",
+  "for": "Gi players at any level who get passed.",
+  "key": ["Theory of guard retention", "Movement and framing", "Connection", "Retaining against double under, toreando and leg drag"]
+}
+}

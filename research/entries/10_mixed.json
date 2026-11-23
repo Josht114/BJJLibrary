@@ -1,0 +1,48 @@
+{
+"DANAHER ENTER THE SYSTEM LEG LOCKS AND OTHERS": {
+  "overview": "This folder holds three separate instructionals.\n\n1) John Danaher's 'Leglocks: Enter the System' (8 volumes, about 9.5 hours), the course that launched the modern no-gi leg lock era through the Danaher Death Squad. It teaches the ashi garami family of entanglements (standard ashi, outside ashi, inside sankaku / saddle, 50/50), the inside and outside heel hook, controlling the knee line, breaking mechanics, entries from many guards, and the dilemmas between leg locks and back takes. The publisher listing doesn't break the volumes down.\n\n2) Luisa Monteiro's 'IBJJF Legal Leglocks' (4 volumes, about 2 hours): leg locks that are legal for most belts under IBJJF gi rules (straight ankle locks, kneebars and toe holds where permitted), for gi competitors.\n\n3) Nick Gwiazdowski's 'Winning Mat Wrestling' (2 volumes, about 45 minutes): mat wrestling (riding, breakdowns and getting up from the bottom) from an NCAA champion and world-level freestyle wrestler.",
+  "for": "No-gi leg lockers (Danaher), gi competitors under IBJJF rules (Monteiro) and anyone wanting mat wrestling for the turtle and scrambles (Gwiazdowski).",
+  "key": ["Danaher: ashi garami system, heel hooks, knee line control", "Monteiro: IBJJF-legal leg locks", "Gwiazdowski: mat wrestling, riding and escapes"],
+  "files": {
+    "IBJJFLegalLeglocksbyLuisaMonteiroVol1.mp4.mp4": "Luisa Monteiro, IBJJF Legal Leglocks, volume 1.",
+    "IBJJFLegalLeglocksbyLuisaMonteiroVol2.mp4.mp4": "Luisa Monteiro, IBJJF Legal Leglocks, volume 2.",
+    "IBJJFLegalLeglocksbyLuisaMonteiroVol3.mp4.mp4": "Luisa Monteiro, IBJJF Legal Leglocks, volume 3.",
+    "IBJJFLegalLeglocksbyLuisaMonteiroVol4.mp4.mp4": "Luisa Monteiro, IBJJF Legal Leglocks, volume 4.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume1.mp4.mp4": "John Danaher, Leglocks: Enter the System, volume 1.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume2.mp4.mp4": "Danaher, volume 2.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume3.mp4.mp4": "Danaher, volume 3.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume4.mp4.mp4": "Danaher, volume 4.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume5.mp4.mp4": "Danaher, volume 5.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume6.mp4.mp4": "Danaher, volume 6.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume7.mp4.mp4": "Danaher, volume 7.",
+    "LegLocksEnterTheSystembyJohnDanaherVolume8.mp4.mp4": "Danaher, volume 8.",
+    "Winning Mat Wrestling Nick Gwiazdowski Vol 1.mp4": "Nick Gwiazdowski, Winning Mat Wrestling, volume 1.",
+    "Winning Mat Wrestling Nick Gwiazdowski Vol 2.mp4": "Nick Gwiazdowski, Winning Mat Wrestling, volume 2."
+  },
+  "sources": ["https://bjjfanatics.com/products/leglocks-enter-the-system-by-john-danaher (no per-volume listing)", "Other two courses identified from the file names."]
+},
+"David Mitchell Ankle Locks Don’t Work (And Other Lies)": {
+  "bjjf": "ankle-locks-dont-work-and-other-lies-by-david-mitchell",
+  "overview": "Masters no-gi competitor David Mitchell's ankle lock system in seven parts (about 2 hours). He finishes most of his matches with the ankle lock, using modern positions rather than the classic straight ankle lock. Part 1 is the 'short X' (butterfly ashi) position and how to find it. Part 2 covers his four grips and the 'Apollo lock'. Part 3 covers adding pain and pressure (elbow kickstand, 'sole crusher', the '404'). Part 4 covers entries from half guard and the K guard to X and short X. Part 5 is troubleshooting (distance, the boot defence, Aoki-style defences). Part 6 covers ankle locks from 50/50 and the saddle. Part 7 covers drills and positional sparring.",
+  "for": "Gi or no-gi grapplers, including older ones, who want the ankle lock as a real finish.",
+  "key": ["Short X / butterfly ashi", "Grip variations", "Increasing pressure", "Entries from half guard and K guard", "Troubleshooting defences"]
+},
+"Diego Pato - Control to Pass Gi Pressure Passing": {
+  "bjjf": "control-to-pass-gi-pressure-passing-by-diego-pato",
+  "overview": "Five-time IBJJF world champion Diego Pato's gi pressure passing in two volumes (about 85 minutes). Volume 1 builds the foundation: a side-to-side approach drill, crowding the hips, keeping base and dealing with frames. Volume 2 covers the passing attacks: the knee slice used to create a reaction, the leg smash, beating open guard and a live drill.",
+  "for": "Gi players, especially lighter ones, who want a control-first pressure passing game.",
+  "key": ["Crowding the hips", "Base and dealing with frames", "Knee slice to create reactions", "Leg smash"]
+},
+"ESCAPES GI FUNDAMENTALS   GO FURTHER FASTER BY JOHN DANAHER": {
+  "overview": "John Danaher's gi escapes fundamentals in eight volumes (about 8 hours), the first course in the Go Further Faster series. He teaches escapes as a hierarchy of prevention: first stop the opponent settling the pin (early frames, elbow-knee connection), then escape with a small set of core movements. It covers escapes from side control, mount, knee on belly, north-south, the back and the turtle, with an emphasis on the frames and first movements, and on why each escape works. The publisher listing doesn't break the volumes down.",
+  "for": "Beginners and anyone rebuilding their defence in the gi.",
+  "key": ["Frames and the elbow-knee connection", "Side control and mount escapes", "Back and turtle escapes", "Escaping before the pin settles"],
+  "sources": ["Go Further Faster series description (BJJ Fanatics); volumes are not listed by topic."]
+},
+"Fundamental Grappling Escapes by William Tackett": {
+  "bjjf": "fundamental-grappling-escapes-by-william-tackett",
+  "overview": "Top competitor William Tackett's escape fundamentals in four volumes (about 2.5 hours). Volume 1 covers concepts: taking away space versus creating space, and how escapes chain together. Volume 2 covers side control (frames, the basic shrimp escape and others). Volume 3 covers mount (elbow escape, bridging hip escape). Volume 4 covers back control (wrist control, escaping to the top arm side).",
+  "for": "Beginners and intermediates, gi or no-gi.",
+  "key": ["Space concepts", "Side control frames and shrimping", "Mount escapes", "Back escapes"]
+}
+}

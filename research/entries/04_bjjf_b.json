@@ -1,0 +1,14 @@
+{
+"Arm Bars - Enter The System By John Danaher": {
+  "bjjf": "enter-the-system-arm-bar-by-john-danaher",
+  "overview": "John Danaher's eight-volume, roughly 12-hour system for juji gatame (the cross-body armbar). He splits the armbar into two phases, getting into position and then separating the opponent's grip, and spends most of the course on the second, which is where most armbars fail. Volumes 1 and 2 cover entries, control and leg position (including crossed versus uncrossed feet). Volume 3 is a deep dive on breaking the grip. Volumes 4 and 5 cover armbars from guard (the top lock, the inside and outside scoop, the 'iron rule' of head and hips). Volumes 6 and 7 cover armbars from top and mount (the ratchet, the underhook and cross-wrist set-ups). Volume 8 links the armbar to leg locks.",
+  "for": "Intermediate and above who get to the armbar position but can't finish against a strong grip.",
+  "key": ["Two-phase model: entry and control, then separation", "Grip-breaking mechanics", "Armbars from guard: top lock, scoops, head-and-hips rule", "Armbars from mount and top", "Combining armbars with leg locks"]
+},
+"Blue Print to Beginner Intermediate Leglocks by Tom DeBlass": {
+  "bjjf": "blue-print-to-beginner-intermediate-leglocks-by-tom-deblass",
+  "overview": "A four-volume leg lock course from Renzo Gracie black belt Tom DeBlass, aimed at beginners and intermediates. Volume 1 is the achilles (straight ankle) lock from several positions, including 50/50. Volume 2 covers outside heel hooks from half guard and butterfly guard, a leg lace from top half guard and the estima lock. Volume 3 covers heel hooks from butterfly guard and seated guard, including stopping the leg drag with an inverted heel hook. Volume 4 sets up leg locks from the closed guard omoplata, half guard, the waiter sweep and X guard (calf slicer and bear trap).",
+  "for": "Beginner and intermediate grapplers starting to add leg locks.",
+  "key": ["Achilles lock positions", "Outside heel hooks from half guard and butterfly", "Estima lock", "Leg lock entries from closed guard, half guard, waiter and X guard"]
+}
+}
