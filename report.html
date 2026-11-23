@@ -15,7 +15,7 @@
 * { box-sizing:border-box; }
 body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
 .app { display:grid; grid-template-columns:320px 1fr; min-height:100vh; }
-aside { background:var(--panel); border-right:1px solid var(--line); padding:18px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+aside { background:var(--panel); border-right:1px solid var(--line); padding:18px 16px 30px; position:sticky; top:var(--navh,0px); height:calc(100vh - var(--navh,0px)); overflow-y:auto; }
 aside h1 { font-size:19px; margin:0; }
 aside .sub { color:var(--muted); font-size:13px; margin:2px 0 14px; }
 aside .sub a { color:var(--accent); }
@@ -36,6 +36,10 @@ input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--line); b
 .tog { display:flex; align-items:center; gap:8px; font-size:14px; margin:4px 0; cursor:pointer; }
 .tog input { accent-color:var(--accent); }
 .print { width:100%; padding:10px; border:0; border-radius:8px; background:var(--accent); color:var(--accent-ink); font:inherit; font-weight:600; cursor:pointer; }
+.print.secondary { margin-top:8px; background:var(--panel); color:var(--ink); border:1px solid var(--line); font-weight:500; }
+.save-status { font-size:13px; color:var(--muted); margin:8px 0 0; overflow-wrap:anywhere; }
+.save-status code { font:12px ui-monospace,Consolas,monospace; user-select:all; }
+.save-status.bad { color:#b3261e; }
 main { padding:28px 32px 80px; min-width:0; }
 .report { max-width:900px; margin:0 auto; }
 .empty { text-align:center; color:var(--muted); padding:80px 20px; }
@@ -94,6 +98,7 @@ main { padding:28px 32px 80px; min-width:0; }
 </style>
 </head>
 <body>
+<script src="nav.js"></script>
 <div class="app">
   <aside>
     <h1>Report Builder</h1>
@@ -125,7 +130,10 @@ main { padding:28px 32px 80px; min-width:0; }
       <label class="tog"><input type="checkbox" id="optCourses" checked> Key instructionals summary</label>
     </div>
 
-    <button class="print" id="printBtn">Print / Save as PDF</button>
+    <button class="print" id="saveBtn">Save report &amp; open in new tab</button>
+    <button class="print secondary" id="printBtn">Print / Save as PDF</button>
+    <p class="save-status" id="saveStatus"></p>
+    <p class="sub" style="margin-top:10px"><a href="saved-reports.html">See all saved reports →</a></p>
   </aside>
   <main><div class="report" id="report"></div></main>
 </div>
@@ -260,6 +268,58 @@ for (const [id, key] of [['optNotes', 'notes'], ['optPaths', 'paths'], ['optCour
   document.getElementById(id).addEventListener('change', e => { state[key] = e.target.checked; update(); });
 document.getElementById('title').addEventListener('input', e => { state.title = e.target.value; update(); });
 document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+// ---- Save the current report as a standalone page in _BJJ Library/reports and open it in a new tab
+function standaloneReport() {
+  const title = state.title || 'Study report';
+  const css = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  const saved = new Date().toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>${esc(title)}</title>
+<style>${css}
+.saved-bar { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:space-between; max-width:900px; margin:0 auto 18px; padding:10px 14px; border:1px solid var(--line); border-radius:10px; background:var(--panel); font-size:13px; color:var(--muted); }
+.saved-bar a, .saved-bar button { font:inherit; font-size:13px; color:var(--accent); background:none; border:0; cursor:pointer; padding:0; text-decoration:none; }
+@media print { .saved-bar { display:none; } }
+</style></head><body>
+<script src="nav.js"><\/script>
+<main><div class="saved-bar"><span>Saved report · ${esc(saved)}</span><span><button onclick="window.print()">Print / Save as PDF</button> · <a href="saved-reports.html">All saved reports</a> · <a href="report.html">Report builder</a></span></div>
+<div class="report">${document.getElementById('report').innerHTML}</div></main>
+<script src="open-vlc.js"><\/script>
+</body></html>`;
+}
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const status = document.getElementById('saveStatus');
+  status.className = 'save-status';
+  if (location.protocol !== 'http:') {
+    status.className = 'save-status bad';
+    status.textContent = 'Saving needs the library server: open the app with "Start BJJ Library" in the _BJJ Library folder.';
+    return;
+  }
+  if (!state.sel.size) { status.className = 'save-status bad'; status.textContent = 'Pick at least one position first.'; return; }
+  // Open the tab straight away (inside the click) so the browser doesn't block it as a pop-up
+  const tab = window.open('', '_blank');
+  if (tab) tab.document.write('<p style="font:16px system-ui,sans-serif;padding:24px">Saving report…</p>');
+  status.textContent = 'Saving…';
+  try {
+    const r = await fetch('/api/save-report', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-BJJ': '1' },
+      body: JSON.stringify({ title: state.title || 'Study report', html: standaloneReport() }),
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    if (tab) tab.location.href = j.url;
+    status.innerHTML = `Saved to <code>${esc(j.file)}</code>` +
+      (tab ? ' and opened in a new tab. ' : '. Your browser blocked the new tab: ') +
+      `<a href="${j.url}" target="_blank">Open report ↗</a>`;
+  } catch (e) {
+    if (tab) tab.close();
+    status.className = 'save-status bad';
+    status.textContent = 'Could not save the report: ' + e.message + '. Is the library server running?';
+  }
+});
 
 renderPicker();
 renderReport();

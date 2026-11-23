@@ -1,0 +1,5 @@
+# generated on this PC: shortcuts point at local video paths, reports are personal, log is runtime output
+Shortcuts/
+reports/
+server.log
+__pycache__/

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saved Reports</title>
+<style>
+:root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dd; --accent:#2f5bd3; --accent-ink:#fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10; } }
+:root[data-theme="dark"] { --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33; --accent:#7b9cff; --accent-ink:#0d0d10; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+.wrap { max-width:900px; margin:0 auto; padding:28px 16px 80px; }
+h1 { font-size:28px; margin:0 0 4px; }
+.lede { color:var(--muted); margin:0 0 18px; }
+.lede a { color:var(--accent); }
+.new { display:inline-block; padding:9px 14px; border-radius:8px; background:var(--accent); color:var(--accent-ink); text-decoration:none; font-weight:600; margin-bottom:18px; }
+.item { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:8px; }
+.item .main { flex:1 1 320px; min-width:0; }
+.item a.t { font-weight:600; font-size:16px; color:var(--ink); text-decoration:none; }
+.item a.t:hover { color:var(--accent); }
+.item .meta { font-size:13px; color:var(--muted); }
+.item code { font:12px ui-monospace,Consolas,monospace; color:var(--muted); overflow-wrap:anywhere; user-select:all; }
+.item .open { font-size:13px; color:var(--accent); text-decoration:none; white-space:nowrap; }
+.empty { color:var(--muted); background:var(--panel); border:1px dashed var(--line); border-radius:10px; padding:30px; text-align:center; }
+</style>
+</head>
+<body>
+<script src="nav.js"></script>
+<div class="wrap">
+  <h1>Saved reports</h1>
+  <p class="lede">Reports you've saved from the <a href="report.html">Report builder</a>. They're stored as files in the <code>reports</code> folder inside <code>_BJJ Library</code>, so you can also open or share them from there.</p>
+  <a class="new" href="report.html">+ Build a new report</a>
+  <div id="list"></div>
+</div>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+(async () => {
+  const el = document.getElementById('list');
+  if (location.protocol !== 'http:') {
+    el.innerHTML = '<p class="empty">Open the app with <b>Start BJJ Library</b> to see your saved reports here. You can also open them directly from the <code>_BJJ Library\\reports</code> folder.</p>';
+    return;
+  }
+  try {
+    const r = await fetch('/api/reports', { cache: 'no-store' });
+    const { reports } = await r.json();
+    if (!reports.length) { el.innerHTML = '<p class="empty">No saved reports yet. Build one and press <b>Save report</b>.</p>'; return; }
+    el.innerHTML = reports.map(x => {
+      const when = new Date(x.saved).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      return `<div class="item"><div class="main"><a class="t" href="${x.url}" target="_blank">${esc(x.title)}</a>
+        <div class="meta">Saved ${esc(when)} · ${Math.max(1, Math.round(x.bytes / 1024))} KB</div>
+        <code>${esc(x.file)}</code></div><a class="open" href="${x.url}" target="_blank">Open in new tab ↗</a></div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<p class="empty">Couldn\'t reach the library server. Start it with <b>Start BJJ Library</b>.</p>';
+  }
+})();
+</script>
+</body>
+</html>

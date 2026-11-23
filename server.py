@@ -4,7 +4,8 @@ Start it with "Start BJJ Library.cmd" (or: pythonw server.py). It only listens o
 127.0.0.1, so nothing outside this PC can reach it, and it stops by itself after
 4 hours with no requests.
 """
-import ctypes, http.server, json, os, socketserver, subprocess, sys, threading, time
+import ctypes, html, http.server, json, os, re, socketserver, subprocess, sys, threading, time
+from urllib.parse import quote
 
 PORT = 8765
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -14,6 +15,31 @@ IDLE_SECONDS = 4 * 3600
 VLC_PATHS = [os.path.join(os.environ.get(v, ''), 'VideoLAN', 'VLC', 'vlc.exe')
              for v in ('ProgramFiles', 'ProgramFiles(x86)')]
 ALLOWED_HOSTS = {f'127.0.0.1:{PORT}', f'localhost:{PORT}'}
+REPORTS_DIR = os.path.join(HERE, 'reports')
+MAX_REPORT_BYTES = 10 * 1024 * 1024
+
+
+def list_reports():
+    """Saved reports, newest first: [{name, url, title, saved, bytes}]"""
+    out = []
+    if os.path.isdir(REPORTS_DIR):
+        for f in os.listdir(REPORTS_DIR):
+            if not f.lower().endswith('.html'):
+                continue
+            p = os.path.join(REPORTS_DIR, f)
+            title = f.rsplit('_', 2)[0].replace('-', ' ')
+            try:
+                with open(p, encoding='utf-8') as fh:
+                    m = re.search(r'<title>(.*?)</title>', fh.read(4000), re.S)
+                if m:
+                    title = html.unescape(m.group(1)).strip()
+            except OSError:
+                pass
+            st = os.stat(p)
+            out.append({'name': f, 'url': '/_BJJ%20Library/reports/' + quote(f), 'title': title,
+                        'saved': time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(st.st_mtime)), 'bytes': st.st_size,
+                        'file': p})
+    return sorted(out, key=lambda r: r['saved'], reverse=True)
 last_request = time.time()
 
 
@@ -83,11 +109,20 @@ def open_in_player(full):
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    # Keep-alive connections: closing the socket after every file occasionally made Windows
+    # reset the connection mid-download (seen as ERR_CONNECTION_RESET on data.js).
+    protocol_version = 'HTTP/1.1'
+
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
 
     def log_message(self, *a):
         pass
+
+    def end_headers(self):
+        # Always revalidate, so rebuilt pages/data (and nav.js) show up without a hard refresh
+        self.send_header('Cache-Control', 'no-cache')
+        super().end_headers()
 
     def _json(self, code, obj):
         body = json.dumps(obj).encode()
@@ -108,26 +143,41 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/':
             self.send_response(302)
             self.send_header('Location', '/_BJJ%20Library/index.html')
+            self.send_header('Content-Length', '0')
             self.end_headers()
             return
         if self.path == '/api/ping':
             return self._json(200, {'ok': True})
+        if self.path == '/api/reports':
+            return self._json(200, {'reports': list_reports()})
         return super().do_GET()
 
     def do_POST(self):
         global last_request
         last_request = time.time()
-        # Only our own pages may ask to open files: same host, same origin, and a custom header
+        # Only our own pages may call the API: same host, same origin, and a custom header
         # (other websites can't send a custom header to localhost without a CORS preflight we never allow).
         origin = self.headers.get('Origin', '')
-        if (not self._host_ok() or self.path != '/api/open' or self.headers.get('X-BJJ') != '1'
+        try:
+            n = int(self.headers.get('Content-Length', '0'))
+        except ValueError:
+            n = -1
+        if n < 0 or n > MAX_REPORT_BYTES:
+            self.close_connection = True  # don't leave an unread body on a kept-alive connection
+            return self._json(413, {'error': 'request too large'})
+        body = self.rfile.read(n) if n else b''
+        if (not self._host_ok() or self.path not in ('/api/open', '/api/save-report') or self.headers.get('X-BJJ') != '1'
                 or origin not in {f'http://{h}' for h in ALLOWED_HOSTS}):
             log(f'refused request: path={self.path} origin={origin!r}')
             return self._json(403, {'error': 'forbidden'})
         try:
-            n = int(self.headers.get('Content-Length', '0'))
-            rel = json.loads(self.rfile.read(min(n, 8192)) or b'{}').get('path', '')
-        except (ValueError, json.JSONDecodeError):
+            data = json.loads(body or b'{}')
+        except json.JSONDecodeError:
+            return self._json(400, {'error': 'bad request'})
+        if self.path == '/api/save-report':
+            return self._save_report(data)
+        rel = data.get('path', '')
+        if not isinstance(rel, str):
             return self._json(400, {'error': 'bad request'})
         full, err = resolve(rel)
         if err:
@@ -136,6 +186,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         how = open_in_player(full)
         log(f'opened ({how}): {full}')
         return self._json(200, {'ok': True, 'opened': how})
+
+    def _save_report(self, data):
+        """Write a generated report to _BJJ Library/reports/<title>_<timestamp>.html (never overwrites)."""
+        title, page = data.get('title', ''), data.get('html', '')
+        if not isinstance(title, str) or not isinstance(page, str) or not page.lstrip().lower().startswith('<!doctype html>'):
+            return self._json(400, {'error': 'bad report'})
+        slug = re.sub(r'[^A-Za-z0-9]+', '-', title).strip('-')[:60] or 'report'
+        os.makedirs(REPORTS_DIR, exist_ok=True)
+        name = f'{slug}_{time.strftime("%Y-%m-%d_%H%M%S")}.html'
+        path = os.path.join(REPORTS_DIR, name)
+        with open(path, 'x', encoding='utf-8') as fh:
+            fh.write(page)
+        log(f'saved report: {path}')
+        return self._json(200, {'ok': True, 'file': path, 'url': '/_BJJ%20Library/reports/' + quote(name)})
 
 
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):

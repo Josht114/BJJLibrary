@@ -13,6 +13,7 @@ Entry fields (all optional except overview):
   files      {video file name: "what this file covers"} overrides
   contents   [{"title": ..., "items": [...]}] hand-written contents when no product listing exists
   sources    list of extra source notes/URLs
+Also reads research/file_notes.json: {course path: {file name: note}} for courses whose files are only numbered.
 Run:  python build_wiki.py          (add --no-txt to skip writing the text files)
 """
 import glob, json, os, re, sys
@@ -24,6 +25,9 @@ from bjjf_parse import parse  # noqa: E402
 
 TXT_NAME = '_ABOUT THIS INSTRUCTIONAL.txt'
 POS_NAMES = {}
+# Per-file notes for courses whose files are only numbered: {course path: {file name: note}}
+_fn = os.path.join(HERE, 'research', 'file_notes.json')
+FILE_NOTES = json.load(open(_fn, encoding='utf-8')) if os.path.exists(_fn) else {}
 
 
 def load_lib():
@@ -78,7 +82,7 @@ def is_numbered(fname):
 def file_breakdown(course, entry, vols):
     """List of {file, label, dur, covers[]} for every video."""
     vids = course['videos']
-    overrides = entry.get('files', {}) if entry else {}
+    overrides = dict(FILE_NOTES.get(course['path'], {}), **(entry.get('files', {}) if entry else {}))
     use_vols = vols and len(vols) == len(vids)
     rows = []
     for i, v in enumerate(vids):
@@ -243,3 +247,5 @@ def main():
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8')
     main()
+    import build_moves  # keep the position -> move -> video index in sync with the wiki
+    build_moves.main()

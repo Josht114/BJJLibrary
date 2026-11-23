@@ -15,7 +15,7 @@
 * { box-sizing:border-box; }
 body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
 .app { display:grid; grid-template-columns:330px 1fr; min-height:100vh; }
-aside { background:var(--panel); border-right:1px solid var(--line); position:sticky; top:0; height:100vh; display:flex; flex-direction:column; }
+aside { background:var(--panel); border-right:1px solid var(--line); position:sticky; top:var(--navh,0px); height:calc(100vh - var(--navh,0px)); display:flex; flex-direction:column; }
 .side-head { padding:16px 14px 10px; border-bottom:1px solid var(--line); }
 .side-head h1 { font-size:19px; margin:0; } .side-head .sub { font-size:13px; color:var(--muted); margin:2px 0 10px; }
 .side-head .sub a { color:var(--accent); }
@@ -57,6 +57,28 @@ section h3 { font-size:13px; letter-spacing:.08em; text-transform:uppercase; col
 .muted { color:var(--muted); font-size:14px; }
 .src a { color:var(--accent); overflow-wrap:anywhere; }
 .loc code { font:12px/1.4 ui-monospace,Consolas,monospace; color:var(--muted); background:var(--panel); border:1px solid var(--line); border-radius:5px; padding:2px 6px; overflow-wrap:anywhere; user-select:all; }
+.jumpnav { position:sticky; top:var(--navh,0px); z-index:3; background:var(--bg); padding:10px 0; border-bottom:1px solid var(--line); margin-bottom:6px; }
+.jump { display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin:3px 0; }
+.jump .jl { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); width:118px; flex:none; }
+.jump a { font-size:12px; text-decoration:none; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:99px; padding:2px 9px; }
+.jump a:hover { border-color:var(--accent); color:var(--accent); }
+.grp-h { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:28px 0 8px; }
+.pos-card { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:10px; padding:14px 18px; margin:0 0 12px; scroll-margin-top:calc(var(--navh,0px) + 150px); }
+.pc-head { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
+.pc-head h4 { margin:0; font-size:19px; }
+.pc-stats { font-size:13px; color:var(--muted); }
+.pc-info { margin:6px 0 10px; font-size:15px; }
+.pc-sub { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:4px 0 4px; }
+.pc-list { margin:0; padding-left:18px; columns:2 320px; column-gap:28px; }
+.pc-list li { margin:3px 0; break-inside:avoid; font-size:14px; }
+.pc-list a { color:var(--accent); text-decoration:none; font-weight:600; }
+.pc-list a:hover { text-decoration:underline; }
+.li-meta { color:var(--muted); font-size:12px; }
+.pc-also { margin-top:8px; }
+.pc-also summary { cursor:pointer; font-size:13px; color:var(--muted); }
+.pc-also[open] summary { margin-bottom:4px; }
+.home-link { color:var(--muted); text-decoration:none; } .home-link:hover { color:var(--accent); }
+@media (max-width:860px) { .jumpnav { position:static; } .jump .jl { width:100%; } }
 .pending { background:var(--gi-bg); color:var(--gi); padding:8px 12px; border-radius:8px; font-size:14px; }
 @media (max-width:860px) {
   .app { grid-template-columns:1fr; }
@@ -67,6 +89,7 @@ section h3 { font-size:13px; letter-spacing:.08em; text-transform:uppercase; col
 </style>
 </head>
 <body>
+<script src="nav.js"></script>
 <div class="app">
   <aside>
     <div class="side-head">
@@ -109,15 +132,73 @@ function renderList() {
     `<button class="item${e.path === current ? ' on' : ''}" data-path="${esc(e.path)}"><b>${esc(e.t)}</b><span>${esc(e.i || '')}</span></button>`).join('');
 }
 
+// ---- Wiki home: every position with a short guide and links to the instructionals underneath
+const GROUPS = [
+  ['Standing', ['standing']],
+  ['Guard (bottom)', ['closed-guard', 'half-guard', 'butterfly', 'open-guard', 'rubber-guard', 'guard-retention']],
+  ['Top', ['passing', 'half-guard-passing', 'mount', 'side-control', 'back', 'turtle-fhl']],
+  ['Submissions', ['chokes', 'guillotine', 'triangle', 'armlocks', 'kimura', 'leglocks']],
+  ['Escapes & defence', ['pin-escapes', 'back-escapes', 'sub-escapes', 'leglock-defense']],
+  ['General', ['fundamentals', 'sc-mindset', 'other']],
+];
+const POS_INFO = {
+  'standing': 'Every match starts on the feet. This covers takedowns, snap downs, hand fighting and guard pulling, plus defending shots. For jiu-jitsu the priority is getting to a good position on the ground safely, rather than scoring like a wrestler.',
+  'closed-guard': 'The first guard most people learn: legs locked around the opponent\'s waist. The game is breaking their posture, then attacking with armbars, triangles, kimuras, collar chokes and sweeps like the scissor and hip bump.',
+  'half-guard': 'Bottom half guard, where you trap one of their legs. Modern half guard is an attacking position: knee shields, underhooks and the dog fight, deep half, lockdown and wrestle-ups to come up on top.',
+  'butterfly': 'Seated guard with your feet hooked inside their thighs. It\'s built on elevating and off-balancing (the butterfly sweep / sumi gaeshi), arm drags, back takes and entries to leg entanglements.',
+  'open-guard': 'Guards with your feet on the opponent rather than locked around them: De La Riva, reverse DLR, spider, lasso, worm, K guard, single leg X and X guard. Used for sweeps, back takes (berimbolo) and leg entanglements.',
+  'rubber-guard': 'Eddie Bravo\'s 10th Planet system: the rubber guard (using flexibility to clamp posture down), the lockdown half guard, and the truck and twister. Mostly no-gi.',
+  'guard-retention': 'Keeping your guard when someone is passing: frames, hip movement, inversions and leg pummelling. Most people get passed more than they get submitted, so this pays off quickly.',
+  'passing': 'Getting past the legs to a pin. The main families: standing passes (toreando, leg drag, long step), pressure passes (knee cut, over-under, stack, body lock) and passing modern leg-entanglement guards.',
+  'half-guard-passing': 'Finishing the pass from top half guard: crossfaces and underhooks, flattening the bottom player, then knee slicing, backstepping or sliding to mount against knee shields, lockdowns and deep half.',
+  'mount': 'Top mount: keeping it against bridges and elbow escapes (high mount, S-mount, grapevines), then finishing with collar chokes, arm triangles, armbars, americanas or by taking the back.',
+  'side-control': 'Pins from the side (side control, north-south, knee on belly, kesa gatame). Covers keeping them flat, isolating arms for kimuras, americanas and chokes, and moving between pins.',
+  'back': 'The most dominant position in jiu-jitsu. Getting there (from turtle, passes, scrambles), keeping control (seatbelt, hooks, body triangle) and finishing with the rear naked choke or collar chokes.',
+  'turtle-fhl': 'Both sides of the turtle and the front headlock: breaking down a turtled opponent and taking the back, front headlock chokes (guillotine, darce, anaconda), and playing from turtle yourself.',
+  'leglocks': 'Heel hooks, straight ankle locks, kneebars, toe holds and calf slicers, plus the entanglements that control the leg (ashi garami, outside ashi, saddle / inside sankaku, 50/50). Mostly no-gi.',
+  'pin-escapes': 'Getting out from under mount, side control, knee on belly and north-south: frames, bridges, shrimping and recovering guard, ideally before the pin settles.',
+  'back-escapes': 'Defending and escaping back control: the hand fight to stop the choke, clearing hooks, escaping the body triangle and turning into top position or guard.',
+  'sub-escapes': 'Escaping submissions once they\'re on: armbars, kimuras, triangles, guillotines and other chokes. The best courses teach early defence first and late escapes second.',
+  'leglock-defense': 'Staying safe in leg entanglements: hiding the heel, clearing the knee line, escaping ashi, the saddle and 50/50, and countering with your own leg attacks.',
+  'chokes': 'Strangles of every kind: collar chokes in the gi (cross collar, Ezekiel, bow and arrow, loop choke), the rear naked choke, arm triangles and other head-and-arm chokes.',
+  'guillotine': 'Front chokes from standing, guard, top and the front headlock: arm-in, high elbow and other guillotines, plus related chokes like the darce and anaconda.',
+  'triangle': 'The triangle family (front, side, rear, reverse and mounted triangles): entries from guard and top, and the finishing mechanics that make it work against good posture.',
+  'armlocks': 'Straight arm locks: the cross-body armbar (juji gatame) from guard, mount, side and the back, plus breaking a defensive grip, which is where most armbars fail.',
+  'kimura': 'The kimura (shoulder lock) and its relatives (americana, omoplata, ultra kimura). Used as a submission and as a control grip for sweeps, passes and back takes.',
+  'fundamentals': 'Beginner curricula, concept-based courses and complete systems: good places to start, or to rebuild your foundations.',
+  'sc-mindset': 'Off-the-mat material: strength training, mobility and joint health, nutrition and the mental side of training and competing.',
+  'other': 'Things in your library that aren\'t jiu-jitsu instruction: films, events and other sports.',
+};
+
+function fmtHours(s) { const h = s / 3600; return h >= 10 ? `${Math.round(h)} h` : h >= 1 ? `${h.toFixed(1)} h` : `${Math.round(s / 60)} min`; }
+
+function renderHome(el) {
+  const total = entries.reduce((n, e) => n + (e.total || 0), 0);
+  const jump = GROUPS.map(([g, ids]) => `<div class="jump"><span class="jl">${esc(g)}</span>${ids.filter(id => POS[id])
+    .map(id => `<a href="#" data-goto="pos-${id}">${esc(POS[id])}</a>`).join('')}</div>`).join('');
+  const sections = GROUPS.map(([g, ids]) => `<h3 class="grp-h">${esc(g)}</h3>` + ids.filter(id => POS[id]).map(id => {
+    const all = entries.filter(x => x.p.includes(id));
+    const main = all.filter(x => x.p[0] === id).sort((a, b) => b.total - a.total);
+    const also = all.filter(x => x.p[0] !== id).sort((a, b) => a.t.localeCompare(b.t));
+    const secs = all.reduce((n, x) => n + (x.total || 0), 0);
+    const gi = all.filter(x => x.g === 'gi' || x.g === 'both').length, nogi = all.filter(x => x.g === 'nogi' || x.g === 'both').length;
+    const link = x => `<li><a href="#${encodeURIComponent(x.path)}">${esc(x.t)}</a> <span class="li-meta">${esc(x.i || '')}${x.g ? ` · ${{ gi: 'Gi', nogi: 'No-Gi', both: 'Gi/No-Gi' }[x.g]}` : ''}${x.total ? ` · ${fmtHours(x.total)}` : ''}</span></li>`;
+    return `<section class="pos-card" id="pos-${id}">
+      <div class="pc-head"><h4>${esc(POS[id])}</h4><span class="pc-stats">${all.length} instructional${all.length === 1 ? '' : 's'} · ${fmtHours(secs)}${id !== 'other' && id !== 'sc-mindset' ? ` · ${gi} gi · ${nogi} no-gi` : ''}</span></div>
+      <p class="pc-info">${esc(POS_INFO[id] || '')}</p>
+      ${main.length ? `<div class="pc-sub">Main focus</div><ul class="pc-list">${main.map(link).join('')}</ul>` : ''}
+      ${also.length ? `<details class="pc-also"><summary>Also covered in ${also.length} other instructional${also.length === 1 ? '' : 's'}</summary><ul class="pc-list">${also.map(link).join('')}</ul></details>` : ''}
+    </section>`;
+  }).join('')).join('');
+  el.innerHTML = `<div class="kicker">BJJ Library</div><h2 class="title">Wiki</h2>
+    <p class="muted" style="margin:0 0 14px">${entries.length} instructionals, about ${Math.round(total / 3600).toLocaleString()} hours of video, organised by position. Each position has a short guide and links to the instructionals that teach it. Use the list on the left, or search for any technique to find every course and chapter that mentions it.</p>
+    <nav class="jumpnav">${jump}</nav>${sections}`;
+}
+
 function renderPage() {
   const e = entries.find(x => x.path === current) || entries.find(x => x.path === (W.entries.find(d => d.path === current) || {}).dupOf);
   const el = document.getElementById('page');
-  if (!e) {
-    const researched = entries.filter(x => x.researched).length;
-    el.innerHTML = `<div class="kicker">BJJ Library</div><h2 class="title">Wiki</h2>
-      <p class="muted">${entries.length} instructionals, ${researched} with full research write-ups. Pick one on the left, or search for a technique to find every instructional and chapter that mentions it.</p>`;
-    return;
-  }
+  if (!e) { renderHome(el); return; }
   const gi = { gi: 'Gi', nogi: 'No-Gi', both: 'Gi & No-Gi' }[e.g];
   const paras = e.overview.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join('');
   let folder = null;
@@ -136,11 +217,11 @@ function renderPage() {
     <div class="contents">${e.contents.map(c => `<h4>${esc(c.title)}</h4><ul>${c.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('')}</div></section>` : '';
   const copies = dupsOf[e.path] || [];
   el.innerHTML = `
-    <div class="kicker">${esc(e.i || 'Instructional')}</div>
+    <div class="kicker"><a class="home-link" href="#">Wiki</a> › ${esc(e.i || 'Instructional')}</div>
     <h2 class="title">${esc(e.t)}</h2>
     <div class="meta">${gi ? `<span class="badge ${e.g}">${gi}</span>` : ''}<span>${e.nvideos} video${e.nvideos === 1 ? '' : 's'}</span>
       ${e.total ? `<span>${fmt(e.total)} total</span>` : ''}${e.researched ? '' : '<span class="badge">short summary</span>'}</div>
-    <div class="chips">${e.p.map(p => `<span class="chip">${esc(POS[p] || p)}</span>`).join('')}</div>
+    <div class="chips">${e.p.map(p => `<a class="chip" href="#" data-goto="pos-${p}" title="See all ${esc(POS[p] || p)} instructionals" style="text-decoration:none;color:inherit">${esc(POS[p] || p)}</a>`).join('')}</div>
     <section class="overview"><h3>Overview</h3>${paras}</section>
     ${e.for ? `<section><h3>Who it's for</h3><p style="margin:0">${esc(e.for)}</p></section>` : ''}
     ${e.key.length ? `<section><h3>Key topics</h3><ul class="key">${e.key.map(k => `<li>${esc(k)}</li>`).join('')}</ul></section>` : ''}
@@ -159,7 +240,21 @@ document.getElementById('list').addEventListener('click', ev => {
 });
 window.addEventListener('hashchange', () => { current = decodeURIComponent(location.hash.slice(1)) || null; renderList(); renderPage(); });
 document.getElementById('q').addEventListener('input', renderList);
-sel.addEventListener('change', renderList);
+
+// Jump to a position section on the home page (going home first if a course is open)
+function gotoPos(anchor) {
+  const go = () => { const s = document.getElementById(anchor); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  if (current) { history.pushState(null, '', location.pathname); current = null; renderList(); renderPage(); setTimeout(go, 50); }
+  else go();
+}
+document.addEventListener('click', ev => {
+  const g = ev.target.closest('[data-goto]');
+  if (g) { ev.preventDefault(); gotoPos(g.dataset.goto); return; }
+  const h = ev.target.closest('a.home-link');
+  if (h) { ev.preventDefault(); history.pushState(null, '', location.pathname); current = null; renderList(); renderPage(); window.scrollTo(0, 0); }
+});
+window.addEventListener('popstate', () => { current = decodeURIComponent(location.hash.slice(1)) || null; renderList(); renderPage(); });
+sel.addEventListener('change', () => { renderList(); if (!current && sel.value) gotoPos('pos-' + sel.value); });
 renderList(); renderPage();
 </script>
 <script src="open-vlc.js"></script>

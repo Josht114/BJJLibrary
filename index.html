@@ -24,8 +24,8 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-.app { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
-aside { border-right: 1px solid var(--line); background: var(--panel); padding: 20px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.app { display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - var(--navh, 0px)); }
+aside { border-right: 1px solid var(--line); background: var(--panel); padding: 20px 14px; position: sticky; top: var(--navh, 0px); height: calc(100vh - var(--navh, 0px)); overflow-y: auto; }
 aside h1 { font-size: 19px; margin: 0 6px 4px; }
 aside .sub { color: var(--muted); font-size: 13px; margin: 0 6px 16px; }
 .group { margin-bottom: 14px; }
@@ -68,6 +68,27 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; }
 .files li button { border: 1px solid var(--line); background: none; color: var(--muted); border-radius: 6px; font-size: 11px; padding: 2px 6px; cursor: pointer; }
 .files li button.vlc { flex: none; border: 0; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 600; background: #f08c00; color: #fff; border-radius: 6px; padding: 2px 8px; }
 .files li button.vlc:hover { background: #d97b00; color: #fff; }
+.pos.open:not(.active) { background: var(--chip); font-weight: 600; }
+.moves { margin: 2px 0 8px 10px; padding-left: 8px; border-left: 2px solid var(--line); }
+.mv { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 4px 8px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 13px; text-align: left; border-radius: 6px; cursor: pointer; }
+.mv:hover { background: var(--chip); }
+.mv.active { background: var(--accent); color: var(--accent-ink); }
+.mv .n, .chip .n { font-size: 11px; opacity: .7; font-variant-numeric: tabular-nums; }
+.crumb { border: 0; background: none; color: var(--accent); font: inherit; padding: 0; cursor: pointer; }
+.crumb:hover { text-decoration: underline; }
+.heading h2 .sep { color: var(--muted); font-weight: 400; }
+.movestrip { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+.movestrip .ms-l { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.hitgroup { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; }
+.hitgroup h3 { margin: 0; font-size: 17px; }
+.hitgroup .meta { margin-bottom: 4px; }
+.files.hits li { align-items: flex-start; }
+.hit-main { flex: 1; min-width: 0; }
+.hit-main a { font-weight: 600; }
+.kind { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 99px; padding: 0 7px; margin-left: 6px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+.kind.k-video { background: var(--nogi-bg); color: var(--nogi); }
+.covers { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.covers span { font-size: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; color: var(--ink); }
 .path { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; margin-top: 6px; }
 .empty { color: var(--muted); padding: 40px 0; text-align: center; }
 .menu-btn { display: none; }
@@ -83,6 +104,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; }
 </style>
 </head>
 <body>
+<script src="nav.js"></script>
 <div class="app">
   <aside id="side">
     <h1>BJJ Library</h1>
@@ -106,6 +128,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 14px; }
   </main>
 </div>
 <script src="data.js"></script>
+<script src="moves.js"></script>
 <script src="open-vlc.js"></script>
 <script>
 const LIB = window.LIBRARY;
@@ -125,8 +148,27 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('bjjlib.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('bjjlib.' + k, JSON.stringify(v)); } catch {} },
 };
-const state = { pos: store.get('pos', 'all'), q: '', gi: store.get('gi', 'all'), dup: store.get('dup', false) };
+const state = { pos: store.get('pos', 'all'), move: store.get('move', null), q: '', gi: store.get('gi', 'all'), dup: store.get('dup', false) };
 if (!NAMES[state.pos]) state.pos = 'all';
+
+// Position -> moves -> videos (moves.js, built by build_moves.py)
+const MV = window.MOVES || { tree: [], hits: {} };
+const MOVES_OF = Object.fromEntries(MV.tree.map(t => [t.pos, t.moves]));
+const MOVE_NAME = Object.fromEntries(MV.tree.flatMap(t => t.moves.map(m => [m.id, m.name])));
+const MOVE_POS = Object.fromEntries(MV.tree.flatMap(t => t.moves.map(m => [m.id, t.pos])));
+const BY_PATH = Object.fromEntries(LIB.courses.map(c => [c.path, c]));
+if (state.move && MOVE_POS[state.move] !== state.pos) state.move = null;
+function moveHits(id) {
+  const q = state.q.trim().toLowerCase();
+  return (MV.hits[id] || []).filter(([path, j, kind, texts]) => {
+    const c = BY_PATH[path];
+    if (!c || !visible(c)) return false;
+    if (!q) return true;
+    const v = j >= 0 ? c.videos[j] : null;
+    const hay = (c.t + ' ' + c.i + ' ' + texts.join(' ') + ' ' + (v ? baseName(v.f) : '')).toLowerCase();
+    return q.split(/\s+/).every(w => hay.includes(w));
+  });
+}
 
 const fileUrl = rel => '../' + rel.split('/').map(encodeURIComponent).join('/');
 const fmtDur = s => {
@@ -163,9 +205,14 @@ function renderNav() {
   document.getElementById('nav').innerHTML = GROUPS.map(([g, ids]) => {
     const items = ids.filter(id => NAMES[id] && (id === 'all' || counts[id]));
     if (!items.length) return '';
-    return `<div class="group"><h2>${g}</h2>${items.map(id =>
-      `<button class="pos${id === state.pos ? ' active' : ''}" data-pos="${id}"><span>${esc(NAMES[id])}</span><span class="n">${counts[id] || 0}</span></button>`
-    ).join('')}</div>`;
+    return `<div class="group"><h2>${g}</h2>${items.map(id => {
+      const on = id === state.pos;
+      const btn = `<button class="pos${on && !state.move ? ' active' : ''}${on ? ' open' : ''}" data-pos="${id}"><span>${esc(NAMES[id])}</span><span class="n">${counts[id] || 0}</span></button>`;
+      if (!on || !MOVES_OF[id]) return btn;
+      const mv = MOVES_OF[id].map(m => [m, moveHits(m.id).length]).filter(([, n]) => n)
+        .map(([m, n]) => `<button class="mv${m.id === state.move ? ' active' : ''}" data-move="${m.id}"><span>${esc(m.name)}</span><span class="n">${n}</span></button>`).join('');
+      return btn + (mv ? `<div class="moves">${mv}</div>` : '');
+    }).join('')}</div>`;
   }).join('');
   const vids = LIB.courses.filter(c => !c.dupOf).reduce((n, c) => n + c.videos.length, 0);
   const hours = Math.round(LIB.courses.filter(c => !c.dupOf).reduce((n, c) => n + c.videos.reduce((m, v) => m + (v.d || 0), 0), 0) / 3600);
@@ -195,22 +242,70 @@ function card(c) {
   </div></article>`;
 }
 
+const KIND_LABEL = { video: 'Whole video', chapter: 'Chapter in this video', course: 'In the course contents' };
+
+function renderMove() {
+  const hits = moveHits(state.move);
+  const groups = new Map();
+  for (const h of hits) { if (!groups.has(h[0])) groups.set(h[0], []); groups.get(h[0]).push(h); }
+  // Courses with whole videos on the move first, then by how much they cover it
+  const ordered = [...groups.entries()].sort((a, b) =>
+    (b[1].some(h => h[2] === 'video') - a[1].some(h => h[2] === 'video')) || b[1].length - a[1].length);
+  const secs = hits.reduce((n, [p, j, kind]) => n + (kind === 'video' && j >= 0 ? (BY_PATH[p].videos[j].d || 0) : 0), 0);
+  document.getElementById('title').innerHTML =
+    `<button class="crumb" data-pos="${state.pos}">${esc(NAMES[state.pos])}</button> <span class="sep">›</span> ${esc(MOVE_NAME[state.move])}`;
+  document.getElementById('count').textContent =
+    `${hits.length} video${hits.length === 1 ? '' : 's'} in ${groups.size} instructional${groups.size === 1 ? '' : 's'}${secs ? ` · ${fmtTotal(secs)} of dedicated videos` : ''}`;
+  document.getElementById('list').innerHTML = ordered.length ? ordered.map(([path, hs]) => {
+    const c = BY_PATH[path];
+    const gi = c.g ? `<span class="badge ${c.g}">${c.g === 'nogi' ? 'No-Gi' : c.g === 'gi' ? 'Gi' : 'Gi & No-Gi'}</span>` : '';
+    const rows = hs.map(([, j, kind, texts]) => {
+      const v = j >= 0 ? c.videos[j] : null;
+      const name = v ? baseName(v.f) : 'Course contents (not split by file)';
+      const what = kind === 'video' && v && texts[0] && baseName(v.f).toLowerCase().includes(texts[0].toLowerCase().slice(0, 12)) ? texts.slice(1) : texts;
+      return `<li><div class="hit-main">${v ? `<a href="${fileUrl(v.f)}" target="_blank">${esc(name)}</a>` : `<span>${esc(name)}</span>`}
+        <span class="kind k-${kind}">${KIND_LABEL[kind]}</span>
+        ${what.length ? `<div class="covers">${what.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}</div>
+        ${v ? `<span class="dur">${fmtDur(v.d)}</span><button class="vlc" data-open="${esc(v.f)}" title="Open from disk in VLC">VLC</button>` : ''}</li>`;
+    }).join('');
+    return `<article class="hitgroup"><div class="hg-head"><h3>${esc(c.t)}</h3>
+      <div class="meta">${c.i ? `<span>${esc(c.i)}</span>` : ''}${gi}<span>${hs.length} match${hs.length === 1 ? '' : 'es'}</span>
+      <a href="wiki.html#${encodeURIComponent(c.path)}" style="color:var(--accent)">Wiki →</a></div></div>
+      <ul class="files hits">${rows}</ul></article>`;
+  }).join('') : '<p class="empty">Nothing matches this move with the current filters.</p>';
+}
+
+function moveStrip() {
+  const mv = (MOVES_OF[state.pos] || []).map(m => [m, moveHits(m.id).length]).filter(([, n]) => n);
+  if (!mv.length) return '';
+  return `<div class="movestrip"><span class="ms-l">Moves</span>${mv.map(([m, n]) =>
+    `<button class="chip" data-move="${m.id}">${esc(m.name)} <span class="n">${n}</span></button>`).join('')}</div>`;
+}
+
 function renderList() {
+  if (state.move) return renderMove();
   const q = state.q.trim().toLowerCase();
   let list = LIB.courses.filter(c => visible(c) && (state.pos === 'all' || c.p.includes(state.pos)) && matchesQuery(c, q));
   // Courses whose FIRST position is the selected one come first, then by instructor/title
   list.sort((a, b) => (b.p[0] === state.pos) - (a.p[0] === state.pos) || a.i.localeCompare(b.i) || a.t.localeCompare(b.t));
   document.getElementById('title').textContent = NAMES[state.pos];
   document.getElementById('count').textContent = `${list.length} instructional${list.length === 1 ? '' : 's'}`;
-  document.getElementById('list').innerHTML = list.length ? list.map(card).join('') : '<p class="empty">Nothing matches.</p>';
+  document.getElementById('list').innerHTML = (state.pos !== 'all' ? moveStrip() : '') +
+    (list.length ? list.map(card).join('') : '<p class="empty">Nothing matches.</p>');
 }
 
 function render() { renderNav(); renderList(); }
 
 document.addEventListener('click', e => {
+  const m = e.target.closest('[data-move]');
+  if (m) {
+    state.move = m.dataset.move; state.pos = MOVE_POS[state.move]; store.set('move', state.move); store.set('pos', state.pos);
+    document.getElementById('side').classList.remove('open');
+    render(); window.scrollTo(0, 0); return;
+  }
   const p = e.target.closest('[data-pos]');
   if (p) {
-    state.pos = p.dataset.pos; store.set('pos', state.pos);
+    state.pos = p.dataset.pos; state.move = null; store.set('pos', state.pos); store.set('move', null);
     document.getElementById('side').classList.remove('open');
     render(); window.scrollTo(0, 0); return;
   }
@@ -220,7 +315,7 @@ document.addEventListener('click', e => {
     navigator.clipboard.writeText(text).then(() => { const o = cp.textContent; cp.textContent = 'Copied'; setTimeout(() => cp.textContent = o, 1200); });
   }
 });
-document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; renderList(); });
+document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; state.move ? render() : renderList(); });
 document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('side').classList.toggle('open'));
 const dupBox = document.getElementById('showDup');
 dupBox.checked = state.dup;
